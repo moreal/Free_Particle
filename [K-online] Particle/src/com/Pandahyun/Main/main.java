@@ -1,7 +1,6 @@
 package com.Pandahyun.Main;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import org.bukkit.ChatColor;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -38,12 +36,13 @@ public class main extends JavaPlugin implements Listener
 
 	public HashMap<String, Boolean> Setting = new HashMap<String, Boolean>();
 	public HashMap<String, List<Boolean>> Originparticles = new HashMap<String, List<Boolean>>();
+	public HashMap<String, Integer> TaskIds = new HashMap<String, Integer>();
 	
 	private FileConfiguration CustomConfig = null;
 	private File CustomFile = null;
 	private File ConfigFile = new File(getDataFolder() + "config.yml");
 	
-	int i=0,j;
+	int i=0,j,nMax;
 	
 	public void onEnable()
 	{
@@ -54,7 +53,7 @@ public class main extends JavaPlugin implements Listener
 			getConfig().set("Settings.Particles.Max", 32);
 			saveConfig();
 		}
-		final int nMax = getConfig().getInt("Settings.Particles.Max");
+		nMax = getConfig().getInt("Settings.Particles.Max");
 	}
 	
 	public void onDisable()
@@ -89,6 +88,11 @@ public class main extends JavaPlugin implements Listener
 				{
 					openGUI(ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle 케이온라인 후원 서비스", 45, player);
 				}
+				
+				else if(args[0].equalsIgnoreCase("masteriskong"))
+				{
+					getConfig().set("Players."+player.getUniqueId().toString()+".Settings.OnOff", true);
+				}
 			}
 			else
 			{
@@ -111,13 +115,16 @@ public class main extends JavaPlugin implements Listener
 	{
 		if(!getConfig().contains(e.getPlayer().getUniqueId().toString()))
 		{
-			List<String> pList = new ArrayList<String>();
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".OriginParticles",pList);
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".SettingParticle", 0);
+			List<Boolean> pList = new ArrayList<Boolean>();
+			for(int i = 0; i<nMax;++i)
+				pList.set(i, false);
+			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".HavingOriginParticles",pList);
+			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Settings.Selected", 0);
 			saveConfig();
 		}
-		showparticle(e.getPlayer());
-		BukkitTask task = new Particles(this,e.getPlayer()).runTaskTimer(this, 0, 20);
+		//showparticle(e.getPlayer());
+		//BukkitTask task = new Particles(this,e.getPlayer()).runTaskTimer(this, 0, 20);
+		TaskIds.put(e.getPlayer().getUniqueId().toString(), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,e.getPlayer()), 0, 20));
 	}
 	
 	public void openGUI(String name, int size, Player player)
