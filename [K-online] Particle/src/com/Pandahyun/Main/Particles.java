@@ -1,5 +1,7 @@
 package com.Pandahyun.Main;
 
+import java.util.HashMap;
+
 import org.bukkit.Bukkit;
 
 //import java.util.HashMap;
@@ -9,13 +11,40 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class Particles extends BukkitRunnable{
+import com.Pandahyun.*;
+
+public class Particles extends BukkitRunnable {
+
+	public Player _p;
+
+	public int _x = 0, _y = 0, _z = 0, TaskId;
 	
-	public main m;
-	public Player _player;
+	//public Hash
+
+	public JavaPlugin plugin;
+
+	public Particles(JavaPlugin plugin, Player player, HashMap<String, Integer> hash) {
+		this.plugin = plugin;
+		_p = player;
+	}
 	
-	public static void Flame(Player player)
-	{
+	@Override
+	public void run() {
+		plugin.getServer().broadcastMessage("hello"+_p.getUniqueId().toString());
+		if (this.plugin.getConfig().getBoolean("Players." + _p.getUniqueId().toString() + ".Settings.OnOff")) {
+			_p.sendMessage("non");
+			if(main.TaskIds.containsKey(_p.getUniqueId().toString())) _p.sendMessage("Ok");
+			else _p.sendMessage("NONO");
+			Flame(_p);
+			//setPosition();
+		} else
+		{
+			Bukkit.getServer().getScheduler().cancelTask(main.TaskIds.get(_p.getUniqueId().toString()));
+		}
+			
+	}
+
+	public void Flame(Player player) {
 		int i = 0, j;
 		Location lc = player.getLocation().add(0, 1, 0);
 		for (j = 0; j < 2; j++) {
@@ -29,30 +58,12 @@ public class Particles extends BukkitRunnable{
 			i = 0;
 	}
 
-	public static void s(Player p) {
-		//Bukkit.getScheduler().
+	public void s(Player p) {
+		// Bukkit.getScheduler().
 		Flame(p);
 	}
-	
-	private JavaPlugin plugin;
-	
-	public Particles(JavaPlugin plugin, Player player)
-	{
-		this.plugin = plugin;
-		_player = player;
-	}
-	
-	@Override
-	public void run()
-	{
-		plugin.getServer().broadcastMessage("hello");
-		for(Player p: Bukkit.getOnlinePlayers())
-		{
-			if(plugin.getConfig().getBoolean("Players."+p.getUniqueId().toString()+".Settings.OnOff"))
-			{
-				
-			}
-			else cancel();
-		}
+
+	public void setPosition() {
+
 	}
 }
