@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,7 +27,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import com.Pandahyun.Main.Particles;
 
@@ -38,15 +38,18 @@ public class main extends JavaPlugin implements Listener
 	public HashMap<String, Boolean> Setting = new HashMap<String, Boolean>();
 	public HashMap<String, List<Boolean>> Originparticles = new HashMap<String, List<Boolean>>();
 	public static HashMap<String, Integer> TaskIds = new HashMap<String, Integer>();
+	public static HashMap<String, String> NowParticle = new HashMap<String, String>();
 	
 	private FileConfiguration CustomConfig = null;
 	private File CustomFile = null;
 	private File ConfigFile = new File(getDataFolder() + "config.yml");
 	
 	int i=0,j,nMax;
+	Calendar cal = Calendar.getInstance();
 	
 	public void onEnable()
 	{
+		new Bukkit.xgetServer().getLogger();
 		getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " 파티클 후원 시스템 기동!");
 		if(!ConfigFile.exists())
@@ -80,8 +83,6 @@ public class main extends JavaPlugin implements Listener
 							+ "\n후원 효과 만들기[OP] - /kpt new <효과 이름> <명령어>"
 							+ "\n후원 효과 지우기[OP] - /kpt remove <효과 이름>"
 							+ "\n후원 파티클 실행하기[OP] - /kpt run <효과 이름>");
-					getConfig().set("hello.hel.hel1o.helo", "hello");
-					saveConfig();
 				}
 				
 				else if(args[0].equalsIgnoreCase("view"))
@@ -91,18 +92,14 @@ public class main extends JavaPlugin implements Listener
 				
 				else if(args[0].equalsIgnoreCase("masteriskong"))
 				{
-					Bukkit.getScheduler().cancelAllTasks();
 					getConfig().set("Players."+sGetU(player)+".Settings.OnOff", true);
-					TaskIds.put(sGetU(player), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,player,TaskIds), 0, 20));
+					TaskIds.put(sGetU(player), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,player), 0, 2));
 					player.sendMessage(TaskIds.get(sGetU(player)).toString() + "로 생성됨");
-					TaskIds.get(sGetU(player));
 					saveConfig();
 				}
 				
 				else if(args[0].equalsIgnoreCase("stop"))
 				{
-					//getServer().getScheduler().cancelTask(Integer.parseInt(args[1]));
-					//getConfig().set("Players."+sGetU(player)+".Settings.OnOff", false);
 					Bukkit.getScheduler().cancelTask(TaskIds.get(sGetU(player)));
 					saveConfig();
 				}
@@ -137,17 +134,15 @@ public class main extends JavaPlugin implements Listener
 			getConfig().set("Players."+sGetU(p)+".Settings.OnOff", false);
 			saveConfig();
 		}
-		//showparticle(e.getPlayer());
-		//BukkitTask task = new Particles(this,e.getPlayer()).runTaskTimer(this, 0, 20);
-		TaskIds.put(sGetU(p), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,p,TaskIds), 0, 20));
+		TaskIds.put(sGetU(p), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,p), 0, 20));
 		e.getPlayer().sendMessage(TaskIds.get(sGetU(p)).toString() + "로 생성됨");
-		//TaskIds.remove(sGetU(p));
 	}
 	
 	public void onQuitEvent(PlayerQuitEvent e)
 	{
 		Bukkit.getScheduler().cancelTask(TaskIds.get(sGetU(e.getPlayer())));
 		TaskIds.remove(sGetU(e.getPlayer()));
+		Logger.getLogger(cal.get(Calendar.YEAR)+ " " +cal.get(Calendar.MONTH)+cal.get(Calendar.YEAR)+e.getPlayer().getName() + "");
 	}
 	
 	public void openGUI(String name, int size, Player player)
@@ -176,7 +171,12 @@ public class main extends JavaPlugin implements Listener
 		
 	}
 	
-	
+	public void stopParticle(Player p)
+	{
+		getServer().getScheduler().cancelTask(TaskIds.get(sGetU(p)));
+		p.sendMessage(p.getName() + "의 태스크를 삭제했습니다." + TaskIds.get(sGetU(p)));
+		TaskIds.remove(sGetU(p));
+	}
 	
 	
 	
