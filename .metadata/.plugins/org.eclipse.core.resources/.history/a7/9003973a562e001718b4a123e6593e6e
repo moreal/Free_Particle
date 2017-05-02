@@ -44,7 +44,7 @@ public class Particles extends BukkitRunnable {
 	}
 
 	public void s(Player p) {
-		if (sGetU(p))
+		// Bukkit.getScheduler().
 		Flame(p);
 	}
 	

@@ -13,8 +13,6 @@ public class Particles extends BukkitRunnable {
 
 	public int _x = 0, _y = 0, _z = 0, i = 0;
 
-	Location lc;
-	
 	public JavaPlugin plugin;
 
 	public Particles(JavaPlugin plugin, Player player) {
@@ -40,33 +38,20 @@ public class Particles extends BukkitRunnable {
 	}
 
 	public void Flame(Player player) {
+		Location lc = player.getLocation().add(0, 1, 0);
+		lc = player.getLocation().add(0, 1, 0);
+		lc.setX(lc.getX() + Math.cos(i * 0.5));
+		lc.setZ(lc.getZ() + Math.sin(i * 0.5));
 		ParticleEffect.FLAME.display(0, 0, 0, 0.000001F, 1, lc, 192);
+		i++;
+		if (i == 360)
+			i = 0;
+
 	}
 
 	public void s(Player p) {
-		if (sGetU(p))
+		// Bukkit.getScheduler().
 		Flame(p);
-	}
-	
-	public void  circle(Player p)
-	{
-		lc = p.getLocation().add(0, 1, 0);
-		lc.setX(lc.getX() + Math.cos(i * 0.5));
-		lc.setZ(lc.getZ() + Math.sin(i * 0.5));
-		i++;
-		if (i == 360)
-			i = 0;
-	}
-	
-	public void  up_circle(Player p)
-	{
-		lc = p.getLocation().add(0, 1, 0);
-		lc.setX(lc.getX() + Math.cos(i * 0.5));
-		lc.setZ(lc.getZ() + Math.sin(i * 0.5));
-		lc.setY(lc.getY() + i/360);
-		i++;
-		if (i == 360)
-			i = 0;
 	}
 
 	public void setPosition() {

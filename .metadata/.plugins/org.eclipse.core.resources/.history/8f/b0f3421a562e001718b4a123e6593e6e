@@ -44,7 +44,7 @@ public class Particles extends BukkitRunnable {
 	}
 
 	public void s(Player p) {
-		if (sGetU(p))
+		// Bukkit.getScheduler().
 		Flame(p);
 	}
 	
@@ -53,6 +53,7 @@ public class Particles extends BukkitRunnable {
 		lc = p.getLocation().add(0, 1, 0);
 		lc.setX(lc.getX() + Math.cos(i * 0.5));
 		lc.setZ(lc.getZ() + Math.sin(i * 0.5));
+		ParticleEffect.FLAME.display(0, 0, 0, 0.000001F, 1, lc, 192);
 		i++;
 		if (i == 360)
 			i = 0;

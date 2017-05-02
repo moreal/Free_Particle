@@ -49,7 +49,7 @@ public class main extends JavaPlugin implements Listener
 	
 	public void onEnable()
 	{
-		//new log = getServer().getLogger();
+		new Bukkit.xgetServer().getLogger();
 		getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " 파티클 후원 시스템 기동!");
 		if(!ConfigFile.exists())
