@@ -20,6 +20,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -49,7 +50,6 @@ public class main extends JavaPlugin implements Listener
 	
 	public void onEnable()
 	{
-		//new log = getServer().getLogger();
 		getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " 파티클 후원 시스템 기동!");
 		if(!ConfigFile.exists())
@@ -100,8 +100,22 @@ public class main extends JavaPlugin implements Listener
 				
 				else if(args[0].equalsIgnoreCase("stop"))
 				{
-					Bukkit.getScheduler().cancelTask(TaskIds.get(sGetU(player)));
-					saveConfig();
+					if(args.length>1)
+						for(Player p : Bukkit.getOnlinePlayers())
+							if(p.getName().equalsIgnoreCase(args[1]))
+								stopParticle(p);
+					else Bukkit.getScheduler().cancelTask(TaskIds.get(sGetU(player)));
+				}
+				
+				else if(args[0].equalsIgnoreCase("set"))
+				{
+					if(args.length>2)
+					{
+						if(args[1].equalsIgnoreCase("Particle")) setParticle(player, args[2]);
+						else if(args[1].equalsIgnoreCase("Shape")) setShape(player, args[2]);
+						else player.sendMessage("[Error] /kpt set particle (or shape) <String>");
+					}
+					else player.sendMessage("[Error] /kpt set particle (or shape) <String>");
 				}
 			}
 			else
@@ -126,11 +140,11 @@ public class main extends JavaPlugin implements Listener
 		Player p = e.getPlayer();
 		if(!getConfig().contains(e.getPlayer().getUniqueId().toString()))
 		{
-			List<Boolean> pList = new ArrayList<Boolean>();
-			for(int i = 0; i<nMax;++i)
-				pList.add(i, false);
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".HavingOriginParticles",pList);
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Settings.Selected", 0);
+			List<String> pList = new ArrayList<String>();
+			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Having.Particles",pList);
+			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Having.Shape",pList);
+			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Settings.Selected.Shape", "None");
+			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Settings.Selected.Particle", "None");
 			getConfig().set("Players."+sGetU(p)+".Settings.OnOff", false);
 			saveConfig();
 		}
@@ -144,6 +158,8 @@ public class main extends JavaPlugin implements Listener
 		TaskIds.remove(sGetU(e.getPlayer()));
 		Logger.getLogger(cal.get(Calendar.YEAR)+ " " +cal.get(Calendar.MONTH)+cal.get(Calendar.YEAR)+e.getPlayer().getName() + "");
 	}
+	
+	//
 	
 	public void openGUI(String name, int size, Player player)
 	{
@@ -166,9 +182,16 @@ public class main extends JavaPlugin implements Listener
 		inv.setItem(loc, item);
 	}
 	
-	public void showparticle(Player player)
+	public void setParticle(Player player, String Particle)
 	{
-		
+		getConfig().set("Players."+player.getUniqueId().toString()+".Settings.Selected.Particle", Particle);
+		saveConfig();
+	}
+	
+	public void setShape(Player player, String Shape)
+	{
+		getConfig().set("Players."+player.getUniqueId().toString()+".Settings.Selected.Shape", Shape);
+		saveConfig();
 	}
 	
 	public void stopParticle(Player p)
