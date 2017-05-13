@@ -24,13 +24,12 @@ public class Particles extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		plugin.getServer().broadcastMessage("hello" + _p.getUniqueId().toString());
 		if (this.plugin.getConfig().getBoolean("Players." + _p.getUniqueId().toString() + ".Settings.OnOff")) {
-			_p.sendMessage("non");
+			/*_p.sendMessage("non");
 			if (main.TaskIds.containsKey(_p.getUniqueId().toString()))
 				_p.sendMessage("Ok");
 			else
-				_p.sendMessage("NONO");
+				_p.sendMessage("NONO");*/
 			setPosition();
 			showParticle();
 		} else {
@@ -51,12 +50,12 @@ public class Particles extends BukkitRunnable {
 	
 	public void  up_circle()
 	{
-		lc = _p.getLocation().add(0, 1, 0);
+		lc = _p.getLocation().add(0, 0.5, 0);
 		lc.setX(lc.getX() + Math.cos(i * 0.5));
 		lc.setZ(lc.getZ() + Math.sin(i * 0.5));
-		lc.setY(lc.getY() + i/360);
+		lc.setY(lc.getY() + (float)i/180);
 		i++;
-		if (i == 360)
+		if (i == 180)
 			i = 0;
 	}
 	
@@ -74,12 +73,13 @@ public class Particles extends BukkitRunnable {
 
 	public void setPosition() {
 		if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").equalsIgnoreCase("None")||
-				this.plugin.getConfig().getStringList("Players."+_p.getUniqueId().toString()+".Having.Shape")!=null)
+				this.plugin.getConfig().getStringList("Players."+_p.getUniqueId().toString()+".Having.Shape")==null)
 			_p.sendMessage("[Error] 아무래도 당신에게는 가지고 있는 파티클 모양이 없는 것 같습니다");
 		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("Circle")) circle();
 		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("Up_Circle")) up_circle();
 		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("On_Head")) on_head();
 		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("AngelWing")) angelwing();
+		else{_p.sendMessage("모양 코드가 잘못 입력되어있습니다"); Bukkit.getScheduler().cancelTask(main.TaskIds.get(_p.getUniqueId().toString()));}
 	}
 	
 	
@@ -88,9 +88,10 @@ public class Particles extends BukkitRunnable {
 	}
 	
 	public void showParticle() {
-		if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particles").equalsIgnoreCase("None")||
-				this.plugin.getConfig().getStringList("Players."+_p.getUniqueId().toString()+".Having.Particles")!=null)
+		if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").equalsIgnoreCase("None")||
+				this.plugin.getConfig().getStringList("Players."+_p.getUniqueId().toString()+".Having.Particles")==null)
 			_p.sendMessage("[Error] 아무래도 당신에게는 가지고 있는 파티클이 없는 것 같습니다");
-		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("Flame")) Flame();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Flame")) Flame();
+		else{_p.sendMessage("파티클 코드가 잘못 입력되어있습니다"); Bukkit.getScheduler().cancelTask(main.TaskIds.get(_p.getUniqueId().toString()));}
 	}
 }

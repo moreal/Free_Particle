@@ -8,11 +8,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,7 +19,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -116,6 +116,7 @@ public class main extends JavaPlugin implements Listener
 						else player.sendMessage("[Error] /kpt set particle (or shape) <String>");
 					}
 					else player.sendMessage("[Error] /kpt set particle (or shape) <String>");
+					saveConfig();
 				}
 			}
 			else
@@ -138,7 +139,7 @@ public class main extends JavaPlugin implements Listener
 	public void onJoinEvent(PlayerJoinEvent e)
 	{
 		Player p = e.getPlayer();
-		if(!getConfig().contains(e.getPlayer().getUniqueId().toString()))
+		if(!(getConfig().contains("Players." + e.getPlayer().getUniqueId().toString())))
 		{
 			List<String> pList = new ArrayList<String>();
 			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Having.Particles",pList);
@@ -148,15 +149,16 @@ public class main extends JavaPlugin implements Listener
 			getConfig().set("Players."+sGetU(p)+".Settings.OnOff", false);
 			saveConfig();
 		}
-		TaskIds.put(sGetU(p), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,p), 0, 20));
+		TaskIds.put(sGetU(p), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,p), 0, 2));
 		e.getPlayer().sendMessage(TaskIds.get(sGetU(p)).toString() + "로 생성됨");
 	}
 	
+	@EventHandler
 	public void onQuitEvent(PlayerQuitEvent e)
 	{
-		Bukkit.getScheduler().cancelTask(TaskIds.get(sGetU(e.getPlayer())));
+		Bukkit.getScheduler().cancelTask(TaskIds.get(e.getPlayer().getUniqueId().toString()));
 		TaskIds.remove(sGetU(e.getPlayer()));
-		Logger.getLogger(cal.get(Calendar.YEAR)+ " " +cal.get(Calendar.MONTH)+cal.get(Calendar.YEAR)+e.getPlayer().getName() + "");
+		//Logger.getLogger(cal.get(Calendar.YEAR)+ " " +cal.get(Calendar.MONTH)+cal.get(Calendar.YEAR)+e.getPlayer().getName() + "");
 	}
 	
 	//
@@ -169,6 +171,15 @@ public class main extends JavaPlugin implements Listener
 		setItem("케이온라인 망해라", 1, 0, 10, Arrays.asList("안녕 프렌즈들",ChatColor.WHITE + "농담인거 알지?"),3,inv);
 		
 		player.openInventory(inv);
+	}
+	
+	@EventHandler
+	public void item_click(PlayerInteractEvent e)
+	{
+		Player p = e.getPlayer();
+		Action a = e.getAction();
+		if(a==Action.RIGHT_CLICK_AIR || a==Action.RIGHT_CLICK_BLOCK) p.sendMessage("우클릭 했음");
+	    if(p.getItemInHand().getType() == Material.STICK) p.sendMessage("STICK");
 	}
 	
 	private void setItem(String Display, int ID, int DATA, int STACK, List<String> lore, int loc, Inventory inv)
