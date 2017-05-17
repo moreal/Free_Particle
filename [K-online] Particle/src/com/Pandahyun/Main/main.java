@@ -31,22 +31,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.Pandahyun.Main.Particles;
 
-
-
 public class main extends JavaPlugin implements Listener
 {
 
 	public HashMap<String, Boolean> Setting = new HashMap<String, Boolean>();
-	public HashMap<String, List<Boolean>> Originparticles = new HashMap<String, List<Boolean>>();
 	public static HashMap<String, Integer> TaskIds = new HashMap<String, Integer>();
-	public static HashMap<String, String> NowParticle = new HashMap<String, String>();
+	public List<String> Particle = new ArrayList<String>();
+	public List<String> Shape = new ArrayList<String>();
 	
-	private FileConfiguration CustomConfig = null;
-	private File CustomFile = null;
+	public final int BOOK = 403;
+	/*private FileConfiguration CustomConfig = null;
+	private File CustomFile = null;*/
 	private File ConfigFile = new File(getDataFolder() + "config.yml");
 	
 	int i=0,j,nMax;
-	Calendar cal = Calendar.getInstance();
 	
 	public void onEnable()
 	{
@@ -54,10 +52,25 @@ public class main extends JavaPlugin implements Listener
 		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " 파티클 후원 시스템 기동!");
 		if(!ConfigFile.exists())
 		{
-			getConfig().set("Settings.Particles.Max", 32);
+			Shape.add("Circle");
+			Shape.add("Up_Circle");
+			Shape.add("On_Head");
+			Shape.add("AngelWing");
+			
+			Particle.add("Flame");
+			Particle.add("Heart");
+			Particle.add("Smoke");
+			Particle.add("Fireworks_spark");
+			Particle.add("Spell");
+			
+			getConfig().set("Settings.Shapes", Shape);
+			getConfig().set("Settings.Particles", Particle);
+			
 			saveConfig();
+			return;
 		}
-		nMax = getConfig().getInt("Settings.Particles.Max");
+		Particle = getConfig().getStringList("Settings.Particles");
+		Shape = getConfig().getStringList("Settings.Shapes");
 	}
 	
 	public void onDisable()
@@ -73,29 +86,17 @@ public class main extends JavaPlugin implements Listener
 			if(args.length > 0)
 			{
 				if(args[0].equalsIgnoreCase("help"))
-				{
-					sender.sendMessage("\n" + ChatColor.AQUA + "K-Particle 케이온라인 후원서비스 플러그인 By Pandahyun\n" + ChatColor.RESET
-							+ "명령어 보기 - /kpt help"
-							+ "\n자신의 후원GUI 열기 - /kpt view"
-							+ "\n다른이의 후원GUI 보기[OP] - /kpt view <플레이어명>"
-							+ "\n후원 효과 얻기[OP] - /kpt get <플레이어명> <얻는 효과>"
-							+ "\n후원 효과 뺐기[OP] - /kpt steal <플레이어명> <뺏는 효과>"
-							+ "\n후원 효과 만들기[OP] - /kpt new <효과 이름> <명령어>"
-							+ "\n후원 효과 지우기[OP] - /kpt remove <효과 이름>"
-							+ "\n후원 파티클 실행하기[OP] - /kpt run <효과 이름>");
-				}
+					CommandHelp(player);
 				
 				else if(args[0].equalsIgnoreCase("view"))
 				{
-					openGUI(ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle 케이온라인 후원 서비스", 45, player);
-				}
-				
-				else if(args[0].equalsIgnoreCase("masteriskong"))
-				{
-					getConfig().set("Players."+sGetU(player)+".Settings.OnOff", true);
-					TaskIds.put(sGetU(player), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,player), 0, 2));
-					player.sendMessage(TaskIds.get(sGetU(player)).toString() + "로 생성됨");
-					saveConfig();
+					if(args.length > 0)
+					{
+						for(Player p : Bukkit.getOnlinePlayers())
+							if (player.getName().equalsIgnoreCase(p.getName())) ParticleGUI(ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle 케이온라인 후원 서비스", 45, player, p);
+							else player.sendMessage("[ERROR] 없는 플레이어 입니다");
+					}
+					else ParticleGUI(ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle 케이온라인 후원 서비스", 45, player, player);
 				}
 				
 				else if(args[0].equalsIgnoreCase("stop"))
@@ -107,38 +108,39 @@ public class main extends JavaPlugin implements Listener
 					else Bukkit.getScheduler().cancelTask(TaskIds.get(sGetU(player)));
 				}
 				
-				else if(args[0].equalsIgnoreCase("set"))
+				else if(args[0].equalsIgnoreCase("give"))
 				{
-					if(args.length>2)
+					if(args.length>3)
 					{
-						if(args[1].equalsIgnoreCase("Particle")) setParticle(player, args[2]);
-						else if(args[1].equalsIgnoreCase("Shape")) setShape(player, args[2]);
-						else player.sendMessage("[Error] /kpt set particle (or shape) <String>");
+						if(args[2].equalsIgnoreCase("Particle"))
+							giveItem("[K - Particle] Particle " + args[3], BOOK, 0, 1,
+									Arrays.asList(ChatColor.AQUA + "케이온라인 파티클 시스템",
+												  Particle.contains(args[3]) ? args[3] : ChatColor.RED + "없는 파티클입니다."), player);
+						
+						else if(args[2].equalsIgnoreCase("Shape"))
+							giveItem("[K - Particle] Shape " + args[3], BOOK, 0, 1,
+									Arrays.asList(ChatColor.AQUA + "케이온라인 파티클 시스템",
+												  Shape.contains(args[3]) ? args[3] : ChatColor.RED + "없는 모양입니다."), sGetP(args[1]));
+						
+						else player.sendMessage("[Error] /kpt give <Player> particle (or shape) <String>");
 					}
-					else player.sendMessage("[Error] /kpt set particle (or shape) <String>");
+					else player.sendMessage("[Error] /kpt give <Player> particle (or shape) <String>");
 					saveConfig();
 				}
 			}
 			else
-			{
-				sender.sendMessage("\n" + ChatColor.AQUA + "K-Particle 케이온라인 후원서비스 플러그인 By Pandahyun\n" + ChatColor.RESET
-						+ "명령어 보기 - /kpt help"
-						+ "\n자신의 후원GUI 열기 - /kpt view"
-						+ "\n다른이의 후원GUI 보기[OP] - /kpt view <플레이어명>"
-						+ "\n후원 효과 얻기[OP] - /kpt get <플레이어명> <얻는 효과>"
-						+ "\n후원 효과 뺐기[OP] - /kpt steal <플레이어명> <뺏는 효과>"
-						+ "\n후원 효과 만들기[OP] - /kpt new <효과 이름> <명령어>"
-						+ "\n후원 효과 지우기[OP] - /kpt remove <효과 이름>"
-						+ "\n후원 파티클 실행하기[OP] - /kpt run <효과 이름>");
-			}
+				CommandHelp(player);
 		}
 		return false;
 	}
+	
+
 	
 	@EventHandler
 	public void onJoinEvent(PlayerJoinEvent e)
 	{
 		Player p = e.getPlayer();
+		
 		if(!(getConfig().contains("Players." + e.getPlayer().getUniqueId().toString())))
 		{
 			List<String> pList = new ArrayList<String>();
@@ -149,37 +151,84 @@ public class main extends JavaPlugin implements Listener
 			getConfig().set("Players."+sGetU(p)+".Settings.OnOff", false);
 			saveConfig();
 		}
+		
 		TaskIds.put(sGetU(p), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,p), 0, 2));
 		e.getPlayer().sendMessage(TaskIds.get(sGetU(p)).toString() + "로 생성됨");
+		
+		giveItem("[K - Particle] Flame", BOOK, 0, 1, Arrays.asList(ChatColor.AQUA + "케이온라인 파티클 시스템", "Flame"), p);
+		
+		p.sendMessage(Particle.toString());
 	}
 	
 	@EventHandler
 	public void onQuitEvent(PlayerQuitEvent e)
 	{
-		Bukkit.getScheduler().cancelTask(TaskIds.get(e.getPlayer().getUniqueId().toString()));
-		TaskIds.remove(sGetU(e.getPlayer()));
-		//Logger.getLogger(cal.get(Calendar.YEAR)+ " " +cal.get(Calendar.MONTH)+cal.get(Calendar.YEAR)+e.getPlayer().getName() + "");
+		if(TaskIds.containsKey(sGetU(e.getPlayer())))
+		{
+			getServer().getScheduler().cancelTask(TaskIds.get(sGetU(e.getPlayer())));
+			TaskIds.remove(sGetU(e.getPlayer()));
+		}
 	}
 	
 	//
 	
-	public void openGUI(String name, int size, Player player)
+	public void ParticleGUI(String name, int size, Player showP, Player tarP)
 	{
-		Inventory inv = Bukkit.createInventory(player, size, name);
-		
-		setItem("케이온라인 흥해라", 10, 0, 20, Arrays.asList(ChatColor.WHITE + "하지만 그 실체는" + ChatColor.RED +" 용암"), 2, inv);
-		setItem("케이온라인 망해라", 1, 0, 10, Arrays.asList("안녕 프렌즈들",ChatColor.WHITE + "농담인거 알지?"),3,inv);
-		
-		player.openInventory(inv);
+		Inventory inv = Bukkit.createInventory(showP, size, name);
+		List<String> Having = getConfig().getStringList("Players."+tarP.getUniqueId().toString()+".Having.Particles");
+		if(!(Having.isEmpty()))
+			for(int i=0; i < Having.size(); ++i)
+				setItem(Having.get(i), BOOK, 0, 1, 
+						Arrays.asList(Having.get(i).equalsIgnoreCase(getConfig().getString("Players." + tarP.getUniqueId().toString() + ".Settings.Selected.Particle")) ? "사용중" : "클릭시 사용"),i,inv);
+		else
+		{
+			showP.sendMessage("[KPT] " + tarP.getName() + " 플러이어는 가지고 있는 파티클이 없습니다.");
+			return;
+		}
+		showP.openInventory(inv);
 	}
 	
 	@EventHandler
-	public void item_click(PlayerInteractEvent e)
+	public void getParticle(PlayerInteractEvent e)
 	{
 		Player p = e.getPlayer();
 		Action a = e.getAction();
-		if(a==Action.RIGHT_CLICK_AIR || a==Action.RIGHT_CLICK_BLOCK) p.sendMessage("우클릭 했음");
-	    if(p.getItemInHand().getType() == Material.STICK) p.sendMessage("STICK");
+		String DisplayName = p.getItemInHand().getItemMeta().getDisplayName();
+		List lore = p.getItemInHand().getItemMeta().getLore();
+		List<String> Having = getConfig().getStringList("Players." + p.getUniqueId().toString() + ".Having.Particles");
+		
+		if(a==Action.RIGHT_CLICK_AIR || a==Action.RIGHT_CLICK_BLOCK)
+			
+			if(p.getItemInHand().getType().getId() == BOOK &&
+			p.getItemInHand().getItemMeta().getLore().size() > 1 &&
+			Particle.contains(lore.get(1)))
+			{
+				if(Having.contains(lore.get(1)))
+					p.sendMessage("이미 가지고 계십니다");
+				
+				else 
+				{
+					Having.add("[KPT]" + lore.get(1));
+					getConfig().set("Players." + p.getUniqueId().toString() + ".Having.Particles", Having);
+					saveConfig();
+					p.getInventory().remove(p.getItemInHand());
+					p.sendMessage("[KPT] " + DisplayName + " 파티클을 얻으셨습니다\n"
+							+ "확인 명령어 /kpt view 로 확인 하실수 있습니다.");
+				}
+			}
+	}
+	
+	//private ItemStack makeItem(String Display, int ID, int DATA, int STACK, List<String> lore)
+	private void giveItem(String Display, int ID, int DATA, int STACK, List<String> lore, Player p)
+	{
+		ItemStack item = new MaterialData(ID,(byte)DATA).toItemStack(STACK);
+		ItemMeta itemMeta = item.getItemMeta();
+		
+		itemMeta.setDisplayName(Display);
+		itemMeta.setLore(lore);
+		item.setItemMeta(itemMeta);
+		
+		p.getInventory().addItem(item);
 	}
 	
 	private void setItem(String Display, int ID, int DATA, int STACK, List<String> lore, int loc, Inventory inv)
@@ -214,7 +263,7 @@ public class main extends JavaPlugin implements Listener
 	
 	
 	
-	private void reloadCustomConfig()
+	/*private void reloadCustomConfig()
 	{
 		if(CustomFile == null) CustomFile = new File(getDataFolder(), "customconfig.yml");
 		CustomConfig = YamlConfiguration.loadConfiguration(CustomFile);
@@ -247,10 +296,32 @@ public class main extends JavaPlugin implements Listener
 	{
 		if(CustomConfig == null) reloadCustomConfig();
 		return CustomConfig;
-	}
+	}*/
 	
 	public String sGetU(Player p) // 유니크 아이디 받아오기
 	{
 		return p.getUniqueId().toString();
+	}
+	
+	public void CommandHelp(Player sender)
+	{
+		sender.sendMessage("\n" + ChatColor.AQUA + "K-Particle 케이온라인 후원서비스 플러그인 By Pandahyun\n" + ChatColor.RESET
+				+ "명령어 보기 - /kpt help"
+				+ "\n자신의 후원GUI 열기 - /kpt view"
+				+ "\n후원 파티클 멈추기 - /kpt stop"
+				+ "\n다른이의 후원GUI 보기[OP] - /kpt view <플레이어명>"
+				+ "\n후원 효과 주기[OP] - /kpt give <플레이어명> <Particle or Shape> <얻는 효과>"
+				+ "\n후원 효과 뺐기[OP] - /kpt steal <플레이어명> <Particle or Shape> <뺏는 효과>"
+				+ "\n후원 책 만들기[OP] - /kpt getBook <효과 이름> <파티클>"
+				);
+	}
+	
+	private Player sGetP(String s) // 플레이어 받아오기
+	{
+		/*for (Player p : getServer().getOnlinePlayers())
+			{
+				if(p.getDisplayName().equals(s)) return p;
+			}*/
+		return getServer().getPlayer(s);
 	}
 }

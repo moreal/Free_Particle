@@ -3,4 +3,6 @@
 <fullyQualifiedTypeName name="java.util.HashMap"/>
 <fullyQualifiedTypeName name="org.bukkit.event.inventory.InventoryClickEvent"/>
 <fullyQualifiedTypeName name="com.avaje.ebeaninternal.server.cluster.SerialiseTransactionHelper"/>
+<fullyQualifiedTypeName name="org.bukkit.event.EventHandler"/>
+<fullyQualifiedTypeName name="org.bukkit.inventory.ItemStack"/>
 </qualifiedTypeNameHistroy>

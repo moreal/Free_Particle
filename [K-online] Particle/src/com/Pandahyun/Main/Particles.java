@@ -82,9 +82,26 @@ public class Particles extends BukkitRunnable {
 		else{_p.sendMessage("모양 코드가 잘못 입력되어있습니다"); Bukkit.getScheduler().cancelTask(main.TaskIds.get(_p.getUniqueId().toString()));}
 	}
 	
+	////////////////////
 	
 	public void Flame() {
 		ParticleEffect.FLAME.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Heart(){
+		ParticleEffect.HEART.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Smoke(){
+		ParticleEffect.SMOKE_NORMAL.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Fireworks_spark(){
+		ParticleEffect.FIREWORKS_SPARK.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Spell(){
+		ParticleEffect.SPELL.display(0, 0, 0, 0.000001F, 1, lc, 192);
 	}
 	
 	public void showParticle() {
@@ -92,6 +109,10 @@ public class Particles extends BukkitRunnable {
 				this.plugin.getConfig().getStringList("Players."+_p.getUniqueId().toString()+".Having.Particles")==null)
 			_p.sendMessage("[Error] 아무래도 당신에게는 가지고 있는 파티클이 없는 것 같습니다");
 		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Flame")) Flame();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Heart")) Heart();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Smoke")) Smoke();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Fireworks_spark")) Fireworks_spark();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Spell")) Spell();
 		else{_p.sendMessage("파티클 코드가 잘못 입력되어있습니다"); Bukkit.getScheduler().cancelTask(main.TaskIds.get(_p.getUniqueId().toString()));}
 	}
 }
