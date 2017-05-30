@@ -1,0 +1,19 @@
+package me.Pandahyun.Main;
+
+public class Main {
+	public static void main(String[] args)
+	{
+		long start = System.currentTimeMillis();
+		long i = 0;
+		 
+		long test = 0;
+		
+		for (; i<10000000000L; ++i)
+		{
+			++test;
+		}
+		long end = System.currentTimeMillis();
+		System.out.println((end-start)/1000.0);
+	}
+	
+}

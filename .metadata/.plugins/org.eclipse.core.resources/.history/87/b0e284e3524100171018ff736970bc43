@@ -1,0 +1,69 @@
+package com.Pandahyun.Main;
+
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Making {
+	
+	public JavaPlugin plugin;
+	public Player _p;
+	World world = this.plugin.getServer().getWorld("world");
+	int ratio; // 비율
+	/*public MakeParticle(JavaPlugin plugin, Player p)
+	{
+		this.plugin = plugin;
+		this._p = p;
+		
+	}*/
+	
+	public Making(JavaPlugin plugin, Player player, int ratio) {
+		this.plugin = plugin;
+		_p = player;
+		this.ratio = ratio;
+		makeField();
+		//openField();
+		//this.plugin.getServer().setteleport()
+	}
+	
+	public static void makeField(Player _p, int ratio)
+	{
+		Location loc = _p.getLocation();
+		Block block;
+		for (int i = -16 * ratio; i < 16 * ratio; ++i)
+		{
+			for (int j = 0; j < 2 * 16 * ratio; ++j)
+			{
+				for (int k = -16 * ratio; k < 16 * ratio; ++k)
+				{
+					block = world.getBlockAt(
+							 (int)loc.getX() + i,
+							 (int)loc.getY() + j,
+							 (int)loc.getZ() + k);
+					if(i==-1*16*ratio || i == 16*ratio-1||j == 0 || j == 2*16*ratio-1 || k==-16*ratio || k==16*ratio-1)
+						block.setType(Material.GLASS);
+					else
+						block.setType(Material.AIR);
+				}
+			}
+		}
+		main.centers.put();
+		_p.sendMessage("유리 필드 생성");
+	}
+	public void openField()
+	{
+		new WorldCreator("hello").createWorld();
+	}
+	
+	public void teleport(double x, double y, double z)
+	{
+		_p.getLocation().setX(x);
+		_p.getLocation().setY(y);
+		_p.getLocation().setZ(z);
+	}
+	
+}

@@ -1,0 +1,70 @@
+package com.Pandahyun.Main;
+
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Making {
+	
+	public JavaPlugin plugin;
+	public Player _p;
+	int ratio; // 비율
+	/*public MakeParticle(JavaPlugin plugin, Player p)
+	{
+		this.plugin = plugin;
+		this._p = p;
+		
+	}*/
+	
+	public Making(JavaPlugin main, Player player, int ratio) {
+		this.plugin = main;
+		_p = player;
+		this.ratio = ratio;
+		isEmpty();
+		//openField();
+		//this.plugin.getServer().setteleport()
+	}
+	
+	public boolean isEmpty()
+	{
+		World world = this.plugin.getServer().getWorld("world");
+		Block block;
+		for (int i = -1 * 16 * ratio; i < 16 * ratio; ++i)
+		{
+			for (int j = 0; j < 2 * 16 * ratio; ++j)
+			{
+				for (int k = -1 * 16 * ratio; k < 16 * ratio; ++k)
+				{
+					if((this.plugin.getServer().getWorld("world").getBlockAt((int)_p.getLocation().getX() + i,
+																		 (int)_p.getLocation().getY() + j,
+																		 (int)_p.getLocation().getZ() + k).isEmpty()))
+					{
+						_p.sendMessage("탐지 중단");
+						return false;
+					}
+					block = world.getBlockAt((int)_p.getLocation().getX() + i,
+							 (int)_p.getLocation().getY() + j,
+							 (int)_p.getLocation().getZ() + k);
+					block.setType(Material.WOOL	);
+				}
+			}
+		}
+		_p.sendMessage("검색완료");
+		return true;
+	}
+	public void openField()
+	{
+		new WorldCreator("hello").createWorld();
+	}
+	
+	public void teleport(double x, double y, double z)
+	{
+		_p.getLocation().setX(x);
+		_p.getLocation().setY(y);
+		_p.getLocation().setZ(z);
+	}
+	
+}

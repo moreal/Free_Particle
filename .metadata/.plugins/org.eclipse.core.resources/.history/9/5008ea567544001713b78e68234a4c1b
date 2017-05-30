@@ -1,0 +1,5 @@
+package com.Pandahyun.Events;
+
+public class JoinEvent {
+
+}

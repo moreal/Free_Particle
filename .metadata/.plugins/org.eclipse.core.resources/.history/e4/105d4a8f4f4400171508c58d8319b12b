@@ -1,0 +1,8 @@
+package com.Pandahyun.Ground;
+
+import org.bukkit.Location;
+
+public class Ground {
+	Location loc;
+	Player owner;
+}

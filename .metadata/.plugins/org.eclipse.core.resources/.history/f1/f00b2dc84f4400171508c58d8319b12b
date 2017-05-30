@@ -1,0 +1,15 @@
+package com.Pandahyun.Ground;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+public class Ground {
+	Location loc;
+	Player owner;
+	int scale;
+	
+	public void setLocation(Location loc)
+	{
+		this.loc = loc;
+	}
+}

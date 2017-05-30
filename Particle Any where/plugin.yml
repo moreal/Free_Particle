@@ -1,0 +1,5 @@
+name: ParticleTest
+main: com.Pandahyun.TestParticle.Main
+version: Beta
+commands:
+  Test:

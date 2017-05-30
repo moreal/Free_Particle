@@ -1,8 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="java.util.HashMap"/>
-<fullyQualifiedTypeName name="org.bukkit.event.inventory.InventoryClickEvent"/>
 <fullyQualifiedTypeName name="com.avaje.ebeaninternal.server.cluster.SerialiseTransactionHelper"/>
-<fullyQualifiedTypeName name="org.bukkit.event.EventHandler"/>
 <fullyQualifiedTypeName name="org.bukkit.inventory.ItemStack"/>
+<fullyQualifiedTypeName name="org.bukkit.event.inventory.InventoryClickEvent"/>
+<fullyQualifiedTypeName name="org.bukkit.event.inventory.InventoryType.SlotType"/>
+<fullyQualifiedTypeName name="org.bukkit.command.defaults.ReloadCommand"/>
+<fullyQualifiedTypeName name="org.bukkit.event.player.PlayerCommandPreprocessEvent"/>
+<fullyQualifiedTypeName name="org.bukkit.event.player.PlayerChatEvent"/>
+<fullyQualifiedTypeName name="org.bukkit.util.permissions.BroadcastPermissions"/>
+<fullyQualifiedTypeName name="org.bukkit.Bukkit"/>
+<fullyQualifiedTypeName name="org.bukkit.event.server.ServerCommandEvent"/>
+<fullyQualifiedTypeName name="org.bukkit.scheduler.BukkitRunnable"/>
+<fullyQualifiedTypeName name="org.bukkit.ChatColor"/>
+<fullyQualifiedTypeName name="com.Pandahyun.Main.MakeParticle"/>
+<fullyQualifiedTypeName name="org.bukkit.plugin.Plugin"/>
+<fullyQualifiedTypeName name="java.util.Map.Entry"/>
+<fullyQualifiedTypeName name="org.bukkit.command.ConsoleCommandSender"/>
+<fullyQualifiedTypeName name="org.bukkit.craftbukkit.v1_5_R3.command.ServerCommandSender"/>
+<fullyQualifiedTypeName name="java.lang.Float"/>
+<fullyQualifiedTypeName name="org.bukkit.plugin.java.JavaPlugin"/>
+<fullyQualifiedTypeName name="org.bukkit.event.Listener"/>
+<fullyQualifiedTypeName name="org.bukkit.Location"/>
+<fullyQualifiedTypeName name="java.lang.Enum"/>
+<fullyQualifiedTypeName name="com.sun.org.glassfish.gmbal.Description"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="org.bukkit.entity.Player"/>
+<fullyQualifiedTypeName name="java.io.FileWriter"/>
+<fullyQualifiedTypeName name="java.io.BufferedWriter"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
+<fullyQualifiedTypeName name="org.bukkit.event.Event"/>
+<fullyQualifiedTypeName name="org.bukkit.event.EventHandler"/>
+<fullyQualifiedTypeName name="org.bukkit.event.player.PlayerJoinEvent"/>
+<fullyQualifiedTypeName name="java.io.FileReader"/>
+<fullyQualifiedTypeName name="java.io.BufferedReader"/>
+<fullyQualifiedTypeName name="com.Pandahyun.Events.JoinEvent"/>
+<fullyQualifiedTypeName name="java.io.File"/>
+<fullyQualifiedTypeName name="com.Pandahyun.Money.MoneyManage"/>
 </qualifiedTypeNameHistroy>

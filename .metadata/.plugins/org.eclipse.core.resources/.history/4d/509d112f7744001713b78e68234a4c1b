@@ -1,0 +1,50 @@
+package com.Pandahyun.Money;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+
+import org.bukkit.entity.Player;
+
+public class MoneyManage {
+	
+	public static HashMap<Player, Integer> Moneys = new HashMap<Player, Integer>();
+	
+	public static void save(File file, Player p)
+	{
+		FileWriter fw;
+		try {
+			fw = new FileWriter(new File(file,"Money\\" + p.getName() + ".mgm"));
+			BufferedWriter bf = new BufferedWriter(fw);
+			bf.write(p.getName() + "\n" + Moneys.get(p));
+			bf.flush();
+			bf.close();
+		} catch (IOException e) {
+			p.sendMessage("filewriter error");
+		}
+	}
+	
+	public static int loadMoney(File file, Player p)
+	{
+		try {
+			FileReader fr = new FileReader(new File(file, "Money\\" + p.getName() + ".mgm"));
+			BufferedReader br = new BufferedReader(fr);
+			try {
+				br.readLine();
+				return(Integer.parseInt(br.readLine());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} catch (FileNotFoundException e) {
+			p.sendMessage("FileNotFoundError");
+		}
+		
+	}
+}

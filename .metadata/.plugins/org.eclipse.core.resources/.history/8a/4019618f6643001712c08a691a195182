@@ -1,0 +1,169 @@
+package com.Pandahyun.Main;
+
+import java.util.Map.Entry;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Making {
+	
+	public JavaPlugin plugin;
+	public Player _p;
+	World world = this.plugin.getServer().getWorld("world");
+	static int ratio = 2; // 비율
+	/*public MakeParticle(JavaPlugin plugin, Player p)
+	{
+		this.plugin = plugin;
+		this._p = p;
+		
+	}*/
+	
+	public Making(JavaPlugin plugin) {
+		this.plugin = plugin;
+		//this.ratio = 3;
+		//openField();
+		//this.plugin.getServer().setteleport()
+	}
+	
+	public static void makeField(String name, Player _p, Location lc, World world)
+	{
+		/*for (Entry<String, Location> e : main.centers.entrySet())
+		{
+			if(e.getValue().distance(lc) < 16 * ratio)
+		}*/
+		
+		/*if(main.centers.containsKey(name))
+		{
+			_p.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " 이미 있는 필드입니다.");
+			return;
+		}*/
+		
+		Block block;
+		for (int i = -16 * ratio; i < 16 * ratio; ++i)
+		{
+			for (int j = 0; j < 4 * 16 * ratio; ++j)
+			{
+				for (int k = -16 * ratio; k < 16 * ratio; ++k)
+				{
+					block = world.getBlockAt(
+							 (int)lc.getX() + i,
+							 (int)lc.getY() + j-1,
+							 (int)lc.getZ() + k);
+					if(i==-1*16*ratio || i == 16*ratio-1||j == 0 || j == 4*16*ratio-1 || k==-16*ratio || k==16*ratio-1)
+						block.setType(Material.GLASS);
+					else
+						block.setType(Material.AIR);
+				}
+			}
+		}
+		main.centers.put(name, lc);
+		if (_p!=null)
+			_p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.GREEN + name + " 필드 생성");
+		
+		makePlayer(_p, lc, world);
+	}
+	
+	public static void removeField(String name, Player _p, World world, Boolean b)
+	{
+		if(!main.centers.containsKey(name))
+		{
+			_p.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " 없는 필드입니다.");
+			return;
+		}
+		
+		Location loc = main.centers.get(name);
+		Block block;
+		for (int i = -16 * ratio; i < 16 * ratio; ++i)
+		{
+			for (int j = 0; j < 4 * 16 * ratio; ++j)
+			{
+				for (int k = -16 * ratio; k < 16 * ratio; ++k)
+				{
+					block = world.getBlockAt(
+							 (int)loc.getX() + i,
+							 (int)loc.getY() + j-1,
+							 (int)loc.getZ() + k);
+						block.setType(Material.AIR);
+				}
+			}
+		}
+		
+		if(b==true)
+		{
+			
+			main.centers.remove(name);
+		}
+		
+		if (_p != null)
+			_p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.GREEN + name + " 필드 제거");
+	}
+	
+	public static void showFields(Player p)
+	{
+		for(Entry<String, Location> entry : main.centers.entrySet())
+		{
+			p.sendMessage("1" + entry.getKey());
+		}
+	}
+	
+	public static void makePlayer(Player p, Location lc, World world)
+	{
+		Block block;
+		
+		//Right Leg
+		for (int i = 0; i < 4 * ratio; ++i)
+		{
+			for (int j = 0; j < 12 * ratio; ++j)
+			{
+				for (int k = -2 *ratio ; k < 2 * ratio; ++k)
+				{
+					block = world.getBlockAt(
+							 (int)lc.getX() + i,
+							 (int)lc.getY() + j,
+							 (int)lc.getZ() + k);
+						block.setType(Material.WOOL);
+				}
+			}
+		}
+		
+		//LEFT Leg
+		for (int i = -4 * ratio ; i < 0; ++i)
+		{
+			for (int j = 0; j < 12 * ratio; ++j)
+			{
+				for (int k = 0; k < 4 * ratio; ++k)
+				{
+					block = world.getBlockAt(
+							 (int)lc.getX() + i,
+							 (int)lc.getY() + j,
+							 (int)lc.getZ() + k);
+						block.setType(Material.WOOL);
+				}
+			}
+		}
+	}
+	
+	public static void scanParticle(String name)
+	{
+		
+	}
+	
+	public void openField()
+	{
+		new WorldCreator("hello").createWorld();
+	}
+	
+	public void teleport(double x, double y, double z)
+	{
+		_p.getLocation().setX(x);
+		_p.getLocation().setY(y);
+		_p.getLocation().setZ(z);
+	}
+	
+}

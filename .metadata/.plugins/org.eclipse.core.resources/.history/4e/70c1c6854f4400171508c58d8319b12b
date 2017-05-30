@@ -1,0 +1,5 @@
+package com.Pandahyun.Ground;
+
+public class Ground {
+	Location loc;
+}

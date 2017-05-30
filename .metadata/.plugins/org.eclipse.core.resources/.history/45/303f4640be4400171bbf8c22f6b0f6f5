@@ -1,0 +1,81 @@
+package com.Pandahyun.Main;
+
+import java.io.File;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import com.Pandahyun.Events.JoinEvent;
+import com.Pandahyun.Money.MoneyManage;
+
+/*
+ * MagicBar Project
+ * By Gangguen
+ * 
+ * component
+ * - 도박(보류)
+ * - GUI
+ * - 나침반 - 어부
+ * - 시계 - 농부
+ * - CD - 광부
+ * - ? - 요리사
+ * - ? - 사냥꾼
+ * - ? - 사육사
+ * 
+ * - 승리 조건
+ * 
+ * - 아ㅣ아ㅣㄹ나어란어ㅏㄹ너ㅏㅣ 승리
+ * - 땅 다 잃을 경우 패배
+ * - 땅을 강제로 사가지고 땅을 하나도 가지고 있지 않을 경우 마지막 땅을 가져간 사람에게 구속된다.
+ * 
+ * - 자본가 승리
+ * - 돈모아서 아이템 사면 승리
+ * 
+ * - 탐험가 승리
+ * - 맵에서 아이템을 모두 찾아 모으면 승리
+ */
+
+public class Main extends JavaPlugin implements Listener {
+	
+	public File Folder = new File(getDataFolder(), "MagicBar\\");
+	
+	public void onEnable()
+	{
+		getServer().getPluginManager().registerEvents(this, this);
+		getServer().getPluginManager().registerEvents(new JoinEvent(), this);
+		Bukkit.getLogger().info("매직바 플러그인 기동");
+		if (!Folder.exists())
+			Folder.mkdirs();
+	}
+	
+	public void onDisable()
+	{
+		Bukkit.getLogger().info("매직바 플러그인 종료");
+	}
+	
+	public boolean onCommand(CommandSender sender, Command label, String command, String[] args)
+	{
+		Player p = (Player) sender;
+		if(command.equalsIgnoreCase("돈"))
+		{
+			p.sendMessage("당신이 가지고 있는 돈은 : " + MoneyManage.Moneys.get(p));
+			return true;
+		}
+		return false;
+	}
+	
+	public void CommandHelp(Player p)
+	{
+		p.sendMessage("----매직바 도움말----");
+		p.sendMessage("/돈");
+		p.sendMessage("/땅"); // 내가 가지고 있는 땅 보기
+		p.sendMessage("/은행");
+		p.sendMessage("/부동산"); // 아이템을 살때
+	}
+	
+	
+}

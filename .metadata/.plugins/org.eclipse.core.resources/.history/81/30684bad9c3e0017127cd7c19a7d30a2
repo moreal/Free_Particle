@@ -1,0 +1,17 @@
+package me.Pandahyun.Main;
+
+import java.io.*;
+
+public class Main {
+	unsigned long i = 0;
+	 
+	unsigned long test = 0;
+	
+	//time_t ago = time(NULL);
+	
+	
+	for (; i<1000000000; ++i)
+	{
+		++test;
+	}
+}

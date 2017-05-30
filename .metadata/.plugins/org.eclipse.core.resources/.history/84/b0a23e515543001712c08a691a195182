@@ -1,0 +1,101 @@
+package com.Pandahyun.Main;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map.Entry;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class FileS {
+	
+	static JavaPlugin plugin;
+	
+	public FileS(JavaPlugin plugin)
+	{
+		this.plugin = plugin;
+	}
+	
+	public static void Reader()
+	{
+		FileReader TempReader;
+		
+		try {
+			main.Temp.createNewFile();
+		} catch (IOException e1) {}
+		
+		
+		
+		try {
+			TempReader = new FileReader(main.Temp);
+			BufferedReader TempBuffer = new BufferedReader(TempReader);
+			
+			String s = null;
+			
+			try {
+				s = TempBuffer.readLine();
+			} catch (IOException e) {}
+			
+			int i = 0;
+			
+			while (s != null)
+			{
+				if (i%2 == 0)
+					try {
+						s = TempBuffer.readLine();
+						Bukkit.broadcastMessage(s);
+					} catch (IOException e1) {}
+				else
+					try {
+						//main.centers.put(s, sGetL(TempBuffer.readLine()));
+						Making.makeField(s, null, sGetL(TempBuffer.readLine()), plugin.getServer().getWorld("world"));
+					} catch (IOException e) {}
+				++i;
+			}
+			
+			try {
+				TempBuffer.close();
+			} catch (IOException e) {}
+		} catch (FileNotFoundException e) {}
+	}
+	
+	public static void Writer()
+	{
+		FileWriter TempWriter;
+		try {
+			TempWriter = new FileWriter(main.Temp);
+			BufferedWriter TempBuffer = new BufferedWriter(TempWriter);
+			
+			TempBuffer.newLine();
+			for(Entry<String,Location> e : main.centers.entrySet())
+			{
+				TempBuffer.append(e.getKey());
+				TempBuffer.newLine();
+				TempBuffer.append(e.getValue().getX() + " " + e.getValue().getY() + " " + e.getValue().getZ());
+				TempBuffer.newLine();
+				TempBuffer.flush();
+			}
+			
+			TempBuffer.close();
+		} catch (IOException e1) {}
+	}
+
+	public static Location sGetL(String s)
+	{
+		String[] list = s.split(" ");
+		Bukkit.broadcastMessage(list[0]);
+		Bukkit.broadcastMessage(list[1]);
+		Bukkit.broadcastMessage(list[2]);
+		return new Location(plugin.getServer().getWorld("world"), Double.parseDouble(list[0]), Double.parseDouble(list[1]) ,Double.parseDouble(list[2]));
+	}
+	
+	public static String lGetS(Location lc)
+	{
+		return lc.toString();
+	}
+}

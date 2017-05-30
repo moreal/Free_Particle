@@ -1,0 +1,9 @@
+package com.Pandahyun.Ground;
+
+public class GroundManage {
+	public static void makeGround()
+	{
+		Ground g = new Ground();
+		g
+	}
+}

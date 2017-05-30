@@ -1,0 +1,25 @@
+package com.Pandahyun.Money;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.bukkit.entity.Player;
+
+public class MoneyManage {
+	
+	public static HashMap<Player, Integer> Moneys = new HashMap<Player, Integer>();
+	public static void save(File file, Player p)
+	{
+		FileWriter fw;
+		try {
+			fw = new FileWriter(new File(file, p.getName()));
+			BufferedWriter bf = new BufferedWriter(fw);
+			bf.write(p.getName() + "\n" + main.p);
+		} catch (IOException e) {
+			p.sendMessage("filewriter error");
+		}
+		
+	}
+}

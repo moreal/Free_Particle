@@ -1,0 +1,221 @@
+package com.Pandahyun.Main;
+
+import java.util.Random;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_5_R3.entity.CraftPlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
+import com.Pandahyun.Main.ParticleEffect.NoteColor;
+import com.Pandahyun.Main.ParticleEffect.OrdinaryColor;
+import com.Pandahyun.Main.ParticleEffect.ParticleColor;
+import com.Pandahyun.Main.ParticleEffect.ParticlePacket;
+import com.avaje.ebeaninternal.server.subclass.GetterSetterMethods;
+
+import net.minecraft.server.v1_5_R3.MinecraftServer;
+import net.minecraft.server.v1_5_R3.Packet;
+import net.minecraft.server.v1_5_R3.Packet63WorldParticles;
+
+
+
+public class Particles extends BukkitRunnable {
+
+	OrdinaryColor color = new OrdinaryColor(10,20,30);
+	
+	public Player _p;
+
+	public int _x = 0, _y = 0, _z = 0, i = 0;
+	
+	Location lc;
+	
+	public JavaPlugin plugin;
+
+	public Particles(JavaPlugin plugin, Player player) {
+		this.plugin = plugin;
+		_p = player;
+	}
+
+	@Override
+	public void run() {
+		if (this.plugin.getConfig().getBoolean("Players." + _p.getUniqueId().toString() + ".Settings.OnOff")) {
+			setPosition();
+			showParticle();
+		}
+
+	}
+	
+	public void  circle()
+	{
+		lc = _p.getLocation().add(0, 1, 0);
+		lc.setX(lc.getX() + Math.cos(i * 0.5));
+		lc.setZ(lc.getZ() + Math.sin(i * 0.5));
+		i++;
+		if (i == 360)
+			i = 0;
+	}
+	
+	public void  up_circle()
+	{
+		lc = _p.getLocation().add(0, 0.5, 0);
+		lc.setX(lc.getX() + Math.cos(i * 0.5));
+		lc.setZ(lc.getZ() + Math.sin(i * 0.5));
+		lc.setY(lc.getY() + (float)i/40);
+		i++;
+		if (i == 40)
+			i = 0;
+	}
+	
+	public void on_head()
+	{
+		lc = _p.getLocation().add(0,2,0);
+	}
+	
+	public void angelwing()
+	{
+		lc = _p.getLocation().add(0,2,0);
+		lc.setX(lc.getX() + Math.cos(i * 0.5)*0.2);
+		lc.setZ(lc.getZ() + Math.sin(i * 0.5)*0.2);
+		++i;
+		if (i==90)
+			i = 0;
+	}
+	
+	public void Back_wing()
+	{
+		lc = _p.getLocation();
+		double yaw = _p.getLocation().getYaw();
+		i = (int) yaw;
+		//i*=-1;
+		i=360-i;
+		_p.sendMessage(" d "  +i);
+		if(yaw<90)
+		{
+			lc.setX(lc.getX() + Math.sin((90-i)/64D));
+			lc.setZ(lc.getZ() + Math.cos((90-i)/64D));
+			_p.sendMessage("yaw<90 : "+ (90-i));
+			return;
+		}
+		else if(yaw<180)
+		{
+			lc.setX(lc.getX() - Math.sin((i-90)/64D));
+			lc.setZ(lc.getZ() + Math.cos((i-90)/64D));
+			_p.sendMessage("yaw<180 : "+ (i-90));
+			return;
+		}
+		else if(yaw<270)
+		{
+			lc.setX(lc.getX() - Math.sin((270-i)/64D));
+			lc.setZ(lc.getZ() - Math.cos((270-i)/64D));
+			_p.sendMessage("yaw<270 : "+ (270-i));
+			return;
+		}
+		else if(yaw<360)
+		{
+			lc.setX(lc.getX() + Math.sin((i-270)/64D));
+			lc.setZ(lc.getZ() - Math.cos((i-270)/64D));
+			_p.sendMessage("yaw<360 : "+ (i-270));
+			return;
+		}
+	}
+
+	public void setPosition() {
+		if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").equalsIgnoreCase("None"))
+		{
+			_p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RED + "[Error] 아무래도 당신에게는 가지고 있는 파티클 모양이 없거나 설정을 안하신것 같습니다");
+			this.plugin.getConfig().set("Players." + _p.getUniqueId().toString() + ".Settings.OnOff",false);
+			this.plugin.saveConfig();
+		}
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("Circle")) circle();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("Up_Circle")) up_circle();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("On_Head")) on_head();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("AngelWing")) angelwing();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Shape").toString().equalsIgnoreCase("BackWing")) Back_wing();
+		else{_p.sendMessage("모양 코드가 잘못 입력되어있습니다"); Bukkit.getScheduler().cancelTask(main.TaskIds.get(_p.getUniqueId().toString()));}
+	}
+	
+	////////////////////
+	
+	public void Flame() {
+		ParticleEffect.FLAME.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Heart(){
+		ParticleEffect.HEART.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Smoke(){
+		ParticleEffect.SMOKE_NORMAL.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Snow_Shovel(){
+		ParticleEffect.SNOW_SHOVEL.display(0,0,0,0.00001F, 1,lc, 192);
+	}
+	
+	public void VILLAGER_HAPPY()
+	{
+		ParticleEffect.VILLAGER_HAPPY.display(0,0,0,0.00001F,1,lc,192);
+	}
+	
+	public void VILLAGER_ANGRY()
+	{
+		ParticleEffect.VILLAGER_ANGRY.display(0,0,0,0.00001F,1,lc,192);
+	}
+	
+	public void Fireworks_spark(){
+		ParticleEffect.FIREWORKS_SPARK.display(0, 0, 0, 0.000001F, 1, lc, 192);
+		
+	}
+	
+	public void Spell(){
+		ParticleEffect.SPELL.display(0, 0, 0, 0.000001F, 1, lc, 192);
+	}
+	
+	public void Redstone()
+	{
+		ParticleEffect.REDSTONE.display(0, 0, 0, 0, 1, lc, 192);
+	}
+	
+	public void RandomRedstone()
+	{
+		ParticleEffect.REDSTONE.display(0, 0, 0, 1, 1, lc, 192);
+	}
+	
+	public void Crit_Magic()
+	{
+		ParticleEffect.CRIT_MAGIC.display(0, 0,0,0,1,lc,192);
+	}
+	
+	public void Portal()
+	{
+		ParticleEffect.PORTAL.display(0,0,0,0,1, lc, 192);
+	}
+	
+	
+	public void showParticle() {
+		if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").equalsIgnoreCase("None"))
+		{
+			_p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RED + "[Error] 아무래도 당신에게는 가지고 있는 파티클이 없거나 설정을 안하신것 같습니다");
+			this.plugin.getConfig().set("Players." + _p.getUniqueId().toString() + ".Settings.OnOff",false);
+			this.plugin.saveConfig();
+		}
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Flame")) Flame();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Heart")) Heart();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Smoke")) Smoke();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Fireworks_spark")) Fireworks_spark();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Spell")) Spell();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Snow_Shovel")) Snow_Shovel();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Villager_Happy")) VILLAGER_HAPPY();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Villager_Angry")) VILLAGER_ANGRY();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Redstone")) Redstone();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Crit_Magic")) Crit_Magic();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("RandomRedstone")) RandomRedstone();
+		else if(this.plugin.getConfig().getString("Players."+_p.getUniqueId().toString()+".Settings.Selected.Particle").toString().equalsIgnoreCase("Portal")) Portal();
+		else{_p.sendMessage("파티클 코드가 잘못 입력되어있습니다"); Bukkit.getScheduler().cancelTask(main.TaskIds.get(_p.getUniqueId().toString()));}
+	}
+}

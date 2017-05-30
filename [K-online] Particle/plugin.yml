@@ -1,4 +1,4 @@
-name: Particle for K-online
+name: Particle
 main: com.Pandahyun.Main.main
 version: 1.0
 commands:

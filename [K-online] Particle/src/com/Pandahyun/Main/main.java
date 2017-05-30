@@ -1,28 +1,33 @@
 package com.Pandahyun.Main;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
@@ -30,298 +35,792 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.Pandahyun.Main.Particles;
+import com.Pandahyun.Main.Making;
 
-public class main extends JavaPlugin implements Listener
-{
+public class main extends JavaPlugin implements Listener {
 
-	public HashMap<String, Boolean> Setting = new HashMap<String, Boolean>();
 	public static HashMap<String, Integer> TaskIds = new HashMap<String, Integer>();
 	public List<String> Particle = new ArrayList<String>();
+	//public List<String> CustomParticle = new ArrayList<String>();
 	public List<String> Shape = new ArrayList<String>();
-	
+	public static HashMap<String, Location> centers = new HashMap<String, Location>();
+	public static List<String> customParticle = new ArrayList<String>();
+
 	public final int BOOK = 403;
-	/*private FileConfiguration CustomConfig = null;
-	private File CustomFile = null;*/
-	private File ConfigFile = new File(getDataFolder() + "config.yml");
 	
-	int i=0,j,nMax;
+	public static File Temp = new File ("C:\\" + "temp\\" + "Pandahyun\\" + "Particle\\" + "temp\\" + "temp.txt");
+	private File ConfigFile = new File(getDataFolder(), "plugins\\"+ "Particle\\" + "config.yml");
+
+	public File custom = new File(getDataFolder(), "plugins\\" + "Particle\\" + "Custom\\");
 	
-	public void onEnable()
-	{
+	//private File CustomParticleFile = new File(getDataFolder(), "plugins\\"+ "Particle");
+
+	int i = 0, j, nMax;
+
+	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
-		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " ÆÄÆ¼Å¬ ÈÄ¿ø ½Ã½ºÅÛ ±âµ¿!");
-		if(!ConfigFile.exists())
+		restartParticle();
+		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " ï¿½ï¿½Æ¼Å¬ ï¿½Ä¿ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½âµ¿!");
+		//if (!CustomParticleFile.exists()) CustomParticleFile.mkdirs();
+		/*if(!Temp.exists()){
+			Temp.mkdir();
+			try {
+				Temp.createNewFile();
+			} catch (IOException e) {}
+		}*/
+		
+		customParticle.clear();
+		
+		if (!custom.exists())
+			custom.mkdirs();
+		
+		for (String s : custom.list())
 		{
-			Shape.add("Circle");
-			Shape.add("Up_Circle");
-			Shape.add("On_Head");
-			Shape.add("AngelWing");
-			
-			Particle.add("Flame");
-			Particle.add("Heart");
-			Particle.add("Smoke");
-			Particle.add("Fireworks_spark");
-			Particle.add("Spell");
-			
-			getConfig().set("Settings.Shapes", Shape);
-			getConfig().set("Settings.Particles", Particle);
-			
-			saveConfig();
-			return;
+			if(s.contains(".pts"))
+			{
+				FileReader fw;
+				try {
+					fw = new FileReader(new File(custom, s));
+					BufferedReader fb = new BufferedReader(fw);
+					String temp;
+					try {
+						temp = fb.readLine();
+						if(s.substring(0, s.length()-4).equalsIgnoreCase(temp))
+						{
+							customParticle.add(temp);
+						}
+					} catch (IOException e1) {
+						Bukkit.getLogger().info("fb.readLine error");
+					}
+					
+					try {
+						fb.close();
+						fw.close();
+					} catch (IOException e) {
+						getServer().getLogger().info("fb.close error");
+					}
+
+				} catch (FileNotFoundException e) {
+					getServer().getLogger().info("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½");
+				}
+			}
 		}
+		
+		new FileS(this);
+		FileS.Reader();
+		
+		/*for(Entry<String, Location> e : centers.entrySet())
+		{
+			Making.makeField(e.getKey(), null, e.getValue(), getServer().getWorld("world"));
+		}*/
+		
+		Shape.add("Circle");
+		Shape.add("Up_Circle");
+		Shape.add("On_Head");
+		Shape.add("AngelWing");
+		Shape.add("BackWing");
+
+		Particle.add("Flame");
+		Particle.add("Heart");
+		Particle.add("Smoke");
+		Particle.add("Fireworks_spark");
+		Particle.add("Spell");
+		Particle.add("Snow_Shovel");
+		Particle.add("Villager_Happy");
+		Particle.add("Villager_Angry");
+		Particle.add("Redstone");
+		Particle.add("Crit_Magic");
+		Particle.add("RandomRedstone");
+		Particle.add("Portal");
+
+		getConfig().set("Settings.Shapes", Shape);
+		getConfig().set("Settings.Particles", Particle);
+
+		saveConfig();
+		
 		Particle = getConfig().getStringList("Settings.Particles");
 		Shape = getConfig().getStringList("Settings.Shapes");
 	}
-	
-	public void onDisable()
-	{
-		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " ÆÄÆ¼Å¬ ÈÄ¿ø ½Ã½ºÅÛ Á¤»óÁ¾·á!");
-	}
-	
-	public boolean onCommand(CommandSender sender, Command label, String command, String[] args)
-	{
-		Player player = (Player) sender;
-		if(command.equalsIgnoreCase("kparticle")||command.equalsIgnoreCase("kpt"))
+
+	public void onDisable() {
+		FileS.Writer();
+		for (Entry<String, Location> e : centers.entrySet())
 		{
-			if(args.length > 0)
-			{
-				if(args[0].equalsIgnoreCase("help"))
+			Bukkit.broadcastMessage(e.getKey());
+			Making.removeField(e.getKey(), null, getServer().getWorld("world"), true);
+		}
+		Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[K-online]" + ChatColor.WHITE + " ï¿½ï¿½Æ¼Å¬ ï¿½Ä¿ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!");
+	}
+
+	public boolean onCommand(CommandSender sender, Command label, String command, String[] args) {
+		Player player = (Player) sender;
+		if (command.equalsIgnoreCase("kparticle") || command.equalsIgnoreCase("kpt")) {
+			if (args.length > 0) {
+				if (args[0].equalsIgnoreCase("help"))
 					CommandHelp(player);
-				
-				else if(args[0].equalsIgnoreCase("view"))
-				{
-					if(args.length > 0)
-					{
-						for(Player p : Bukkit.getOnlinePlayers())
-							if (player.getName().equalsIgnoreCase(p.getName())) ParticleGUI(ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle ÄÉÀÌ¿Â¶óÀÎ ÈÄ¿ø ¼­ºñ½º", 45, player, p);
-							else player.sendMessage("[ERROR] ¾ø´Â ÇÃ·¹ÀÌ¾î ÀÔ´Ï´Ù");
-					}
-					else ParticleGUI(ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle ÄÉÀÌ¿Â¶óÀÎ ÈÄ¿ø ¼­ºñ½º", 45, player, player);
+
+				else if (args[0].equalsIgnoreCase("view")) {
+					if (args.length > 1) {
+						if(player.isOp())
+							if (sGetP(args[1]) != null && sGetP(args[1]).isOnline())
+								SettingGUI(player, sGetP(args[1]));
+							else
+								player.sendMessage("[ERROR] ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½Ô´Ï´ï¿½");
+						else
+							player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
+					} else
+						SettingGUI(player, player);
 				}
 				
-				else if(args[0].equalsIgnoreCase("stop"))
+				else if (args[0].equalsIgnoreCase("edit"))
 				{
-					if(args.length>1)
-						for(Player p : Bukkit.getOnlinePlayers())
-							if(p.getName().equalsIgnoreCase(args[1]))
-								stopParticle(p);
-					else Bukkit.getScheduler().cancelTask(TaskIds.get(sGetU(player)));
-				}
-				
-				else if(args[0].equalsIgnoreCase("give"))
-				{
-					if(args.length>3)
+					if (!player.isOp())
 					{
-						if(args[2].equalsIgnoreCase("Particle"))
-							giveItem("[K - Particle] Particle " + args[3], BOOK, 0, 1,
-									Arrays.asList(ChatColor.AQUA + "ÄÉÀÌ¿Â¶óÀÎ ÆÄÆ¼Å¬ ½Ã½ºÅÛ",
-												  Particle.contains(args[3]) ? args[3] : ChatColor.RED + "¾ø´Â ÆÄÆ¼Å¬ÀÔ´Ï´Ù."), player);
-						
-						else if(args[2].equalsIgnoreCase("Shape"))
-							giveItem("[K - Particle] Shape " + args[3], BOOK, 0, 1,
-									Arrays.asList(ChatColor.AQUA + "ÄÉÀÌ¿Â¶óÀÎ ÆÄÆ¼Å¬ ½Ã½ºÅÛ",
-												  Shape.contains(args[3]) ? args[3] : ChatColor.RED + "¾ø´Â ¸ğ¾çÀÔ´Ï´Ù."), sGetP(args[1]));
-						
-						else player.sendMessage("[Error] /kpt give <Player> particle (or shape) <String>");
+						player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
+						return true;
 					}
-					else player.sendMessage("[Error] /kpt give <Player> particle (or shape) <String>");
+					
+					if (args[1].equalsIgnoreCase("list"))
+					{
+						Making.showFields(player);
+						return true;
+					}
+					
+					if (args.length < 2)
+					{
+						CommandHelp(player);
+						return true;
+					}
+					
+					if(args[1].equalsIgnoreCase("make"))
+					{
+						if(args.length < 3)
+						{
+							player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½!!");
+							return true;
+						}
+						Making.makeField(args[2], player, player.getLocation(), getServer().getWorld("world"));
+					}
+					
+					else if(args[1].equalsIgnoreCase("remove"))
+					{
+						if(args.length < 3)
+						{
+							player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½!!");
+							return true;
+						}
+						Making.removeField(args[2], player, getServer().getWorld("world"),true);
+					}
+					
+					else if(args[1].equalsIgnoreCase("save"))
+					{
+						if(args.length < 4)
+						{
+							player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½!!");
+							return true;
+						}
+						Making.scanParticle(args[2], custom, args[3], player, getServer().getWorld("world"));
+					}
+					
+					else
+						CommandHelp(player);
+				}
+
+				else if (args[0].equalsIgnoreCase("stop")) {
+					if (args.length > 1 && player.isOp())
+						if(sGetP(args[1]) != null && sGetP(args[1]).isOnline())
+						stopParticle(sGetP(args[1]));
+						else ;
+					else player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤!");
+				}
+
+				else if (args[0].equalsIgnoreCase("give")) {
+					if(!player.isOp())
+					{
+						player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤!");
+						return true;
+					}
+					
+					if (args.length > 3) {
+						Player givePlayer = sGetP(args[1]);
+						if (givePlayer != null && givePlayer.isOnline()) {
+							if (args[2].equalsIgnoreCase("Particle") || args[2].equalsIgnoreCase("pt"))
+								giveItem("[K - Particle] " + args[3], BOOK, 0, 1,
+										Arrays.asList(ChatColor.AQUA + "[K-online] Particle",
+												Particle.contains(args[3]) ? args[3] : ChatColor.RED + "ì—†ëŠ” íŒŒí‹°í´ì…ë‹ˆë‹¤.",ChatColor.RESET + "Type : Particle"),
+										sGetP(args[1]));
+
+							else if (args[2].equalsIgnoreCase("Shape") || args[2].equalsIgnoreCase("sh"))
+								giveItem("[K - Particle] " + args[3], BOOK, 0, 1,
+										Arrays.asList(ChatColor.AQUA + "[K-online] Particle",
+												Shape.contains(args[3]) ? args[3] : ChatColor.RED + "ì—†ëŠ” ëª¨ì–‘ì…ë‹ˆë‹¤.", ChatColor.RESET + "Type : Shape"),
+										sGetP(args[1]));
+							
+							else if (args[2].equalsIgnoreCase("Custom") || args[2].equalsIgnoreCase("ct"))
+								giveItem("[K - Particle] " + args[3], BOOK, 0, 1,
+										Arrays.asList(ChatColor.AQUA + "[K-online] Particle",
+												customParticle.contains(args[3]) ? args[3] : ChatColor.RED + "ì—†ëŠ” ì»¤ìŠ¤í…€ì…ë‹ˆë‹¤", ChatColor.RESET + "Type : Custom"),
+										sGetP(args[1]));
+
+							else
+								player.sendMessage("[Error] /kpt give <Player> particle (or shape or custom) <String>");
+						} else
+							player.sendMessage("ì˜¨ë¼ì¸ì´ ì•„ë‹ˆê±°ë‚˜ ì—†ëŠ” í”Œë ˆì´ì–´ ì…ë‹ˆë‹¤");
+					} else
+						player.sendMessage("[Error] /kpt give <Player> particle (or shape or custom) <String>");
 					saveConfig();
 				}
+				
+				else if (args[0].equalsIgnoreCase("restart"))
+				{
+					if(!player.isOp())
+					{
+						player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤!");
+						return true;
+					}
+
+					restartParticle();
+				}
+				
+				else if(args[0].equalsIgnoreCase("getBook"))
+				{
+					if(!player.isOp())
+					{
+						player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤!");
+						return true;
+					}
+					
+					if(args.length < 2)
+					{
+						CommandHelp(player);
+						return true;
+					}
+					
+					if (args[1].equalsIgnoreCase("Particle") || args[1].equalsIgnoreCase("pt"))
+						giveItem("[K - Particle] " + args[2], BOOK, 0, 1,
+								Arrays.asList(ChatColor.AQUA + "[K-online] Particle",
+										Particle.contains(args[2]) ? args[2] : ChatColor.RED + "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¼Å¬ï¿½Ô´Ï´ï¿½.",ChatColor.RESET + "Type : Particle"),
+								player);
+
+					else if (args[1].equalsIgnoreCase("Shape") || args[1].equalsIgnoreCase("sh"))
+						giveItem("[K - Particle] " + args[2], BOOK, 0, 1,
+								Arrays.asList(ChatColor.AQUA + "[K-online] Particle",
+										Shape.contains(args[2]) ? args[2] : ChatColor.RED + "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.", ChatColor.RESET + "Type : Shape"),
+								player);
+					
+					else if (args[1].equalsIgnoreCase("Custom") || args[1].equalsIgnoreCase("ct"))
+						giveItem("[K - Particle] " + args[2], BOOK, 0, 1,
+								Arrays.asList(ChatColor.AQUA + "[K-online] Particle",
+										customParticle.contains(args[2]) ? args[2] : ChatColor.RED + "ï¿½ï¿½ï¿½ï¿½ Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.", ChatColor.RESET + "Type : Custom"),
+								player);
+					
+					else
+						CommandHelp(player);
+						
+				}
+				
+				else if(args[0].equalsIgnoreCase("list"))
+				{
+					if(!player.isOp())
+					{
+						player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤!");
+						return true;
+					}
+					
+					if(args.length < 2)
+					{
+						CommandHelp(player);
+						return true;
+					}
+					
+					if(args[1].equalsIgnoreCase("Particle") || args[1].equalsIgnoreCase("pt"))
+					{
+						player.sendMessage("---íŒŒí‹°í´ ëª©ë¡---");
+						for (String s : Particle)
+							player.sendMessage(s);
+					}
+					
+					else if(args[1].equalsIgnoreCase("Custom") || args[1].equalsIgnoreCase("ct"))
+					{
+						player.sendMessage("---ì»¤ìŠ¤í…€ ëª©ë¡---");
+						for (String s :customParticle)
+							player.sendMessage(s);
+					}
+					
+					else if(args[1].equalsIgnoreCase("Shape") || args[1].equalsIgnoreCase("sh"))
+					{
+						player.sendMessage("---ëª¨ì–‘ ëª©ë¡---");
+						for (String s : Shape)
+							player.sendMessage(s);
+					}
+					
+					else
+						CommandHelp(player);
+				}
+				
+				else if(args[0].equalsIgnoreCase("remove"))
+				{
+					if(!player.isOp())
+					{
+						player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + " ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤!");
+						return true;
+					}
+					
+					if(args.length < 3)
+					{
+						CommandHelp(player);
+						return true;
+					}
+					
+					Player tarP = sGetP(args[1]);
+					
+					if(tarP != null) 
+					{
+						
+						if (args[2].equalsIgnoreCase("Particle") || args[2].equalsIgnoreCase("pt"))
+						{
+							List<String> Having = getConfig().getStringList("Players." + sGetU(tarP) + ".Having.Particles");
+							
+							if(Having.contains(args[3])) Having.remove(args[3]);
+							else
+							{
+								player.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RED + "ï¿½Ø´ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.");
+								return true;
+							}
+							
+							if(Having.isEmpty()) getConfig().set("Players."+ sGetU(tarP) +".Settings.Selected.Particle", "None");
+							
+							getConfig().set("Players." + sGetU(tarP) + ".Having.Particles", Having);
+							saveConfig();
+							
+							player.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + tarP.getName() + " ï¿½ï¿½ ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¿ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+						}
+							
+
+						else if (args[2].equalsIgnoreCase("Shape") || args[2].equalsIgnoreCase("sh"))
+						{
+							List<String> Having = getConfig().getStringList("Players." + sGetU(tarP) + ".Having.Shapes");
+							
+							if(Having.contains(args[3])) Having.remove(args[3]);
+							else
+							{
+								player.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RED + "ï¿½Ø´ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.");
+								return true;
+							}
+							
+							if(Having.isEmpty()) getConfig().set("Players."+ sGetU(tarP) +".Settings.Selected.Shape", "None");
+							
+							getConfig().set("Players." + sGetU(tarP) + ".Having.Shapes", Having);
+							saveConfig();
+							
+							player.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + tarP.getName() + "ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¿ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+						}
+						
+						else if (args[2].equalsIgnoreCase("Custom") || args[2].equalsIgnoreCase("ct"))
+						{
+							List<String> Having = getConfig().getStringList("Players." + sGetU(tarP) + ".Having.Customs");
+							
+							if(Having.contains(args[3])) Having.remove(args[3]);
+							else
+							{
+								player.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RED + "ï¿½Ø´ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Ø´ï¿½ Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.");
+								return true;
+							}
+							
+							if(Having.isEmpty()) getConfig().set("Players."+ sGetU(tarP) +".Settings.Selected.Shape", "None");
+							
+							getConfig().set("Players." + sGetU(tarP) + ".Having.Shapes", Having);
+							saveConfig();
+							
+							player.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + tarP.getName() + "ï¿½ï¿½ Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¿ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+						}
+						
+						else
+							CommandHelp(player);
+					}
+					
+					else
+						player.sendMessage(ChatColor.AQUA + "[KPT]" + ChatColor.RED + "ï¿½Ø´ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½Ô´Ï´ï¿½.");
+					
+					
+				}
+				else CommandHelp(player);
 			}
 			else
 				CommandHelp(player);
 		}
+		else return true;
 		return false;
 	}
-	
 
-	
 	@EventHandler
-	public void onJoinEvent(PlayerJoinEvent e)
-	{
-		Player p = e.getPlayer();
+	public void onJoinEvent(PlayerJoinEvent e) {
 		
-		if(!(getConfig().contains("Players." + e.getPlayer().getUniqueId().toString())))
-		{
+		Player p = e.getPlayer();
+
+		if (!(getConfig().contains("Players." + e.getPlayer().getUniqueId().toString()))) {
 			List<String> pList = new ArrayList<String>();
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Having.Particles",pList);
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Having.Shape",pList);
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Settings.Selected.Shape", "None");
-			getConfig().set("Players."+e.getPlayer().getUniqueId().toString()+".Settings.Selected.Particle", "None");
-			getConfig().set("Players."+sGetU(p)+".Settings.OnOff", false);
+			getConfig().set("Players." + e.getPlayer().getUniqueId().toString() + ".Having.Particles", pList);
+			getConfig().set("Players." + e.getPlayer().getUniqueId().toString() + ".Having.Shape", pList);
+			getConfig().set("Players." + e.getPlayer().getUniqueId().toString() + ".Having.Customs", pList);
+			getConfig().set("Players." + e.getPlayer().getUniqueId().toString() + ".Settings.Selected.Shape", "None");
+			getConfig().set("Players." + e.getPlayer().getUniqueId().toString() + ".Settings.Selected.Particle",
+					"None");
+			getConfig().set("Players." + sGetU(p) + ".Settings.OnOff", false);
 			saveConfig();
 		}
+
+		if(getConfig().getBoolean("Players." + sGetU(p) + ".Settings.OnOff")) runParticle(p);
+	}
+
+	@EventHandler
+	public void onQuitEvent(PlayerQuitEvent e) {
+		if (TaskIds.containsKey(sGetU(e.getPlayer()))) {
+			stopParticle(e.getPlayer());
+		}
+	}
+
+	@EventHandler
+	public void onSelectedInventory(InventoryClickEvent event) {
+		if (ChatColor.stripColor(event.getInventory().getName()).equalsIgnoreCase("K-Particle - Particles")) {
+			event.setCancelled(true);
+
+			if(event.getSlot()==44)
+			{
+				SettingGUI((Player) event.getWhoClicked(), getServer().getPlayer(event.getInventory().getContents()[44].getItemMeta().getLore().get(1)));
+				return;
+			}
+			
+			if (!event.getSlotType().equals(SlotType.OUTSIDE) && !event.getCurrentItem().getType().equals(Material.AIR)
+					&& event.getCurrentItem().hasItemMeta()
+					&& event.getCurrentItem().getItemMeta().getDisplayName().contains(ChatColor.AQUA + "[KPT]")) {
+				Player p = (Player) event.getWhoClicked();
+				List<String> Having = getConfig().getStringList("Players." + sGetU(p) + ".Having.Particles");
+				int slot = event.getSlot();
+
+				event.setCancelled(true);
+				
+				setParticle(p, Having.get(slot));
+				ParticleGUI(p, getServer().getPlayer(event.getInventory().getContents()[44].getItemMeta().getLore().get(1)));
+			}
+		}
 		
-		TaskIds.put(sGetU(p), getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this,p), 0, 2));
-		e.getPlayer().sendMessage(TaskIds.get(sGetU(p)).toString() + "·Î »ı¼ºµÊ");
+		else if (ChatColor.stripColor(event.getInventory().getName()).equals("K-Particle - Shapes")) {
+			event.setCancelled(true);
+			
+			if(event.getSlot()==44)
+			{
+				SettingGUI((Player) event.getWhoClicked(), getServer().getPlayer(event.getInventory().getContents()[44].getItemMeta().getLore().get(1)));
+				return;
+			}
+			
+			if (!event.getSlotType().equals(SlotType.OUTSIDE) && !event.getCurrentItem().getType().equals(Material.AIR)
+					&& event.getCurrentItem().hasItemMeta()
+					&& event.getCurrentItem().getItemMeta().getDisplayName().contains(ChatColor.AQUA + "[KPT]")) {
+				Player p = (Player) event.getWhoClicked();
+				String s = ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
+				
+				//if(Shape.contains(s.substring(6, s.length())))
+				setShape(p, s.substring(6, s.length()));
+				
+				/*else if(customParticle.contains(s.substring(6, s.length())))
+					setShape(p, s.substring(6, s.length()));*/
+				ShapeGUI((Player) event.getWhoClicked(),
+						getServer().getPlayer(event.getInventory().getContents()[44].getItemMeta().getLore().get(1)));
+			}
+		}
+
+		else if (ChatColor.stripColor(event.getInventory().getName()).contains("K-Particle - Setting")) {
+
+			if (!event.getSlotType().equals(SlotType.OUTSIDE) && !event.getCurrentItem().getType().equals(Material.AIR)
+					&& event.getCurrentItem().hasItemMeta()) {
+				Player p = (Player) event.getWhoClicked();
+				Player tarP = getServer().getPlayer(event.getInventory().getContents()[0].getItemMeta().getLore().get(1));
+				int slot = event.getSlot();
+
+				event.setCancelled(true);
+
+				switch (slot) {
+				case 3:
+					//p.closeInventory();
+					ParticleGUI((Player) event.getWhoClicked(), getServer()
+							.getPlayer(event.getInventory().getContents()[0].getItemMeta().getLore().get(1)));
+					break;
+				case 4:
+					//p.closeInventory();
+					ShapeGUI((Player) event.getWhoClicked(), getServer()
+							.getPlayer(event.getInventory().getContents()[0].getItemMeta().getLore().get(1)));
+					break;
+				case 5:
+					if(getConfig().getBoolean("Players." + p.getUniqueId().toString() + ".Settings.OnOff")) {
+						getConfig().set("Players." + tarP.getUniqueId().toString() + ".Settings.OnOff", false);
+						stopParticle(tarP);
+					}
+					else {
+						getConfig().set("Players." + tarP.getUniqueId().toString() + ".Settings.OnOff", true);
+						runParticle(p);
+					}
+					
+					p.sendMessage("[KPT] " +tarP.getName() + " ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½ : " + (getConfig().getBoolean("Players." + tarP.getUniqueId().toString() + ".Settings.OnOff") ? "TRUE" : "FALSE"));
+					p.closeInventory();
+					saveConfig();
+				case 8:
+					p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + "GUIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+					p.closeInventory();
+					break;
+				}
+
+			}
+		}
+	}
+
+	@EventHandler
+	public void onReloadPlayer(PlayerCommandPreprocessEvent e)
+	{
+		String s = e.getMessage();
 		
-		giveItem("[K - Particle] Flame", BOOK, 0, 1, Arrays.asList(ChatColor.AQUA + "ÄÉÀÌ¿Â¶óÀÎ ÆÄÆ¼Å¬ ½Ã½ºÅÛ", "Flame"), p);
-		
-		p.sendMessage(Particle.toString());
+		if(s.equalsIgnoreCase("reload"))
+		{
+			FileS.Writer();
+			reloadParticle();
+		}
 	}
 	
 	@EventHandler
-	public void onQuitEvent(PlayerQuitEvent e)
+	public void onReloadServer(ServerCommandEvent e)
 	{
-		if(TaskIds.containsKey(sGetU(e.getPlayer())))
+		if(e.getCommand().equalsIgnoreCase("reload"))
 		{
-			getServer().getScheduler().cancelTask(TaskIds.get(sGetU(e.getPlayer())));
-			TaskIds.remove(sGetU(e.getPlayer()));
+			FileS.Writer();
+			reloadParticle();
 		}
 	}
 	
 	//
-	
-	public void ParticleGUI(String name, int size, Player showP, Player tarP)
-	{
-		Inventory inv = Bukkit.createInventory(showP, size, name);
-		List<String> Having = getConfig().getStringList("Players."+tarP.getUniqueId().toString()+".Having.Particles");
-		if(!(Having.isEmpty()))
-			for(int i=0; i < Having.size(); ++i)
-				setItem(Having.get(i), BOOK, 0, 1, 
-						Arrays.asList(Having.get(i).equalsIgnoreCase(getConfig().getString("Players." + tarP.getUniqueId().toString() + ".Settings.Selected.Particle")) ? "»ç¿ëÁß" : "Å¬¸¯½Ã »ç¿ë"),i,inv);
-		else
-		{
-			showP.sendMessage("[KPT] " + tarP.getName() + " ÇÃ·¯ÀÌ¾î´Â °¡Áö°í ÀÖ´Â ÆÄÆ¼Å¬ÀÌ ¾ø½À´Ï´Ù.");
+
+	public void ParticleGUI(Player showP, Player tarP) {
+		Inventory inv = Bukkit.createInventory(null, 45,
+				ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle - Particles");
+		List<String> Having = getConfig() .getStringList("Players." + tarP.getUniqueId().toString() + ".Having.Particles");
+		
+		if (!(Having.isEmpty()))
+			for (int i = 0; i < Having.size(); ++i)
+				setItem(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + Having.get(i), BOOK, 0, 1,
+						Arrays.asList(Having.get(i)
+								.equalsIgnoreCase(getConfig().getString(
+								"Players." + tarP.getUniqueId().toString() + ".Settings.Selected.Particle"))
+								? "ï¿½ï¿½ï¿½ï¿½ï¿½" : "Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½"), i, inv);
+		else {
+			showP.sendMessage(ChatColor.RED + "[KPT] " + ChatColor.AQUA + tarP.getName() + ChatColor.RED + " ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+			inv = null; Having = null;
 			return;
 		}
+		setItem(ChatColor.AQUA + "ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½", BOOK, 0, 1, Arrays.asList(ChatColor.RESET + "ï¿½ï¿½ GUIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½", tarP.getName()),43, inv);
+		setItem(ChatColor.AQUA + "Setting GUI", 324, 0, 1, Arrays.asList(ChatColor.RESET + "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ï¿½Ï´ï¿½", tarP.getName()),44, inv);
 		showP.openInventory(inv);
 	}
-	
+
+	public void ShapeGUI(Player showP, Player tarP) {
+		Inventory inv = Bukkit.createInventory(null, 45,
+				ChatColor.BLUE + "" + ChatColor.BOLD + "K-Particle - Shapes");
+		List<String> Having = getConfig().getStringList("Players." + tarP.getUniqueId().toString() + ".Having.Shapes");
+		if (!(getConfig().getStringList("Players." + tarP.getUniqueId().toString() + ".Having.Shapes").isEmpty())
+				|| !getConfig().getStringList("Players." + tarP.getUniqueId().toString() + ".Having.Customs").isEmpty())
+		{
+			int i = 0;
+			for (; i < Having.size(); ++i)
+				setItem(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + Having.get(i), BOOK, 0, 1,
+						Arrays.asList(Having.get(i)
+								.equalsIgnoreCase(getConfig().getString(
+										"Players." + tarP.getUniqueId().toString() + ".Settings.Selected.Shape"))
+												? "ï¿½ï¿½ï¿½ï¿½ï¿½" : "Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½"),i, inv);
+			
+			Having = getConfig().getStringList("Players." + tarP.getUniqueId().toString() + ".Having.Customs");
+			for (String s : Having)
+			{
+				setItem(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + s, BOOK, 0, 1,
+						Arrays.asList(s
+								.equalsIgnoreCase(getConfig().getString(
+										"Players." + tarP.getUniqueId().toString() + ".Settings.Selected.Shape"))
+												? "ï¿½ï¿½ï¿½ï¿½ï¿½" : "Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½"),i, inv);
+				++i;
+			}
+		}
+		else {
+			showP.sendMessage(ChatColor.RED + "[KPT] " + ChatColor.AQUA + tarP.getName() + ChatColor.RED + " ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+			inv = null; Having = null;
+			return;
+		}
+		setItem(ChatColor.AQUA + "ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½", BOOK, 0, 1, Arrays.asList(ChatColor.RESET + "ï¿½ï¿½ GUIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½", tarP.getName()), 43, inv);
+		setItem(ChatColor.AQUA + "Setting GUI", 324, 0, 1, Arrays.asList(ChatColor.RESET + "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ï¿½Ï´ï¿½", tarP.getName()),44, inv);
+		showP.openInventory(inv);
+	}
+
+	public void SettingGUI(Player showP, Player tarP) {
+		Inventory inv = Bukkit.createInventory(null, 9, ChatColor.BLUE + "K-Particle - Setting");
+
+		setItem(ChatColor.AQUA + "ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½", BOOK, 0, 1, Arrays.asList(ChatColor.RESET + "ï¿½ï¿½ GUIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½", tarP.getName()), 0, inv);
+		setItem(ChatColor.AQUA + "ï¿½ï¿½Æ¼Å¬ È®ï¿½ï¿½", BOOK, 0, 1, Arrays.asList("ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ Particleï¿½ï¿½ È®ï¿½ï¿½ ï¿½Õ´Ï´ï¿½"), 3, inv);
+		setItem(ChatColor.AQUA + "ï¿½ï¿½ï¿½ È®ï¿½ï¿½", BOOK, 0, 1, Arrays.asList("ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ Shapeï¿½ï¿½ È®ï¿½ï¿½ ï¿½Õ´Ï´ï¿½"), 4, inv);
+		setItem(ChatColor.AQUA + "ï¿½ï¿½Æ¼Å¬ OnOff", BOOK, 0, 1, Arrays.asList("Particle is" +
+				(getConfig().getBoolean("Players." + tarP.getUniqueId().toString() + ".Settings.OnOff") ? "On" : "Off")), 5, inv);
+		setItem(ChatColor.AQUA + "GUI ï¿½İ±ï¿½", 324, 0, 1, Arrays.asList("ï¿½ï¿½ GUIï¿½ï¿½ ï¿½İ½ï¿½ï¿½Ï´ï¿½."), 8, inv);
+
+		showP.openInventory(inv);
+	}
+
 	@EventHandler
 	public void getParticle(PlayerInteractEvent e)
 	{
 		Player p = e.getPlayer();
 		Action a = e.getAction();
-		String DisplayName = p.getItemInHand().getItemMeta().getDisplayName();
-		List lore = p.getItemInHand().getItemMeta().getLore();
-		List<String> Having = getConfig().getStringList("Players." + p.getUniqueId().toString() + ".Having.Particles");
-		
-		if(a==Action.RIGHT_CLICK_AIR || a==Action.RIGHT_CLICK_BLOCK)
+		if(!p.getItemInHand().getType().equals(Material.AIR)
+		 && p.getItemInHand().hasItemMeta())
+		{
+			String DisplayName = p.getItemInHand().getItemMeta().getDisplayName();
+			List<String> lore = p.getItemInHand().getItemMeta().getLore();
 			
-			if(p.getItemInHand().getType().getId() == BOOK &&
-			p.getItemInHand().getItemMeta().getLore().size() > 1 &&
-			Particle.contains(lore.get(1)))
+			if(a==Action.RIGHT_CLICK_AIR || a==Action.RIGHT_CLICK_BLOCK)
 			{
-				if(Having.contains(lore.get(1)))
-					p.sendMessage("ÀÌ¹Ì °¡Áö°í °è½Ê´Ï´Ù");
 				
-				else 
+				if(p.getItemInHand().getType().getId() == BOOK &&
+				p.getItemInHand().getItemMeta().getLore().size() > 1)
 				{
-					Having.add("[KPT]" + lore.get(1));
-					getConfig().set("Players." + p.getUniqueId().toString() + ".Having.Particles", Having);
-					saveConfig();
-					p.getInventory().remove(p.getItemInHand());
-					p.sendMessage("[KPT] " + DisplayName + " ÆÄÆ¼Å¬À» ¾òÀ¸¼Ì½À´Ï´Ù\n"
-							+ "È®ÀÎ ¸í·É¾î /kpt view ·Î È®ÀÎ ÇÏ½Ç¼ö ÀÖ½À´Ï´Ù.");
+					if(Particle.contains(lore.get(1)))
+					{
+						List<String> Having = getConfig().getStringList("Players." + p.getUniqueId().toString() + ".Having.Particles");
+					
+						if(Having.contains(lore.get(1)))
+							p.sendMessage(ChatColor.AQUA + "[KPT] " + "ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ê´Ï´ï¿½");
+					
+						else
+						{
+							Having.add(lore.get(1));
+							getConfig().set("Players." + p.getUniqueId().toString() + ".Having.Particles", Having);
+							saveConfig();
+							p.getInventory().remove(p.getItemInHand());
+							p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + DisplayName + " ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½Ï´ï¿½\n"
+									+ "È®ï¿½ï¿½ ï¿½ï¿½É¾ï¿½ /kpt view ï¿½ï¿½ È®ï¿½ï¿½ ï¿½Ï½Ç¼ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½.");
+						}
+					}
+					
+					else if(Shape.contains(lore.get(1)))
+					{
+						List<String> Having = getConfig().getStringList("Players." + p.getUniqueId().toString() + ".Having.Shapes");
+					
+						if(Having.contains(lore.get(1)))
+							p.sendMessage(ChatColor.AQUA + "[KPT] " + "ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ê´Ï´ï¿½");
+					
+						else
+						{
+							Having.add(lore.get(1));
+							getConfig().set("Players." + p.getUniqueId().toString() + ".Having.Shapes", Having);
+							saveConfig();
+							p.getInventory().remove(p.getItemInHand());
+							p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + DisplayName + " ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½Ï´ï¿½\n"
+									+ "È®ï¿½ï¿½ ï¿½ï¿½É¾ï¿½ /kpt view ï¿½ï¿½ È®ï¿½ï¿½ ï¿½Ï½Ç¼ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½.");
+						}
+					}
+					
+					else if (customParticle.contains(lore.get(1)))
+					{
+						List<String> Having = getConfig().getStringList("Players." + p.getUniqueId().toString() + ".Having.Customs");
+						
+						if(Having.contains(lore.get(1)))
+							p.sendMessage(ChatColor.AQUA + "[KPT] " + "ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ê´Ï´ï¿½");
+						
+						else
+						{
+							Having.add(lore.get(1));
+							getConfig().set("Players." + p.getUniqueId().toString() + ".Having.Customs", Having);
+							saveConfig();
+							p.getInventory().remove(p.getItemInHand());
+							p.sendMessage(ChatColor.AQUA + "[KPT] " + ChatColor.RESET + DisplayName + " ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½Ï´ï¿½\n"
+									+ "È®ï¿½ï¿½ ï¿½ï¿½É¾ï¿½ /kpt view ï¿½ï¿½ È®ï¿½ï¿½ ï¿½Ï½Ç¼ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½.");
+						}
+					}
 				}
 			}
+		}
 	}
-	
-	//private ItemStack makeItem(String Display, int ID, int DATA, int STACK, List<String> lore)
-	private void giveItem(String Display, int ID, int DATA, int STACK, List<String> lore, Player p)
-	{
-		ItemStack item = new MaterialData(ID,(byte)DATA).toItemStack(STACK);
+
+	private void giveItem(String Display, int ID, int DATA, int STACK, List<String> lore, Player p) {
+		ItemStack item = new MaterialData(ID, (byte) DATA).toItemStack(STACK);
 		ItemMeta itemMeta = item.getItemMeta();
-		
+
 		itemMeta.setDisplayName(Display);
 		itemMeta.setLore(lore);
 		item.setItemMeta(itemMeta);
-		
+
 		p.getInventory().addItem(item);
 	}
-	
-	private void setItem(String Display, int ID, int DATA, int STACK, List<String> lore, int loc, Inventory inv)
-	{
-		ItemStack item = new MaterialData(ID,(byte)DATA).toItemStack(STACK);
+
+	private void setItem(String Display, int ID, int DATA, int STACK, List<String> lore, int loc, Inventory inv) {
+		ItemStack item = new MaterialData(ID, (byte) DATA).toItemStack(STACK);
 		ItemMeta itemMeta = item.getItemMeta();
-		
+
 		itemMeta.setDisplayName(Display);
 		itemMeta.setLore(lore);
 		item.setItemMeta(itemMeta);
 		inv.setItem(loc, item);
 	}
-	
-	public void setParticle(Player player, String Particle)
-	{
-		getConfig().set("Players."+player.getUniqueId().toString()+".Settings.Selected.Particle", Particle);
+
+	public void setParticle(Player player, String Particle) {
+		getConfig().set("Players." + player.getUniqueId().toString() + ".Settings.Selected.Particle", Particle);
 		saveConfig();
 	}
-	
-	public void setShape(Player player, String Shape)
-	{
-		getConfig().set("Players."+player.getUniqueId().toString()+".Settings.Selected.Shape", Shape);
+
+	public void setShape(Player player, String Shape) {
+		getConfig().set("Players." + player.getUniqueId().toString() + ".Settings.Selected.Shape", Shape);
 		saveConfig();
 	}
-	
-	public void stopParticle(Player p)
-	{
+
+	public void stopParticle(Player p) {
 		getServer().getScheduler().cancelTask(TaskIds.get(sGetU(p)));
-		p.sendMessage(p.getName() + "ÀÇ ÅÂ½ºÅ©¸¦ »èÁ¦Çß½À´Ï´Ù." + TaskIds.get(sGetU(p)));
+		getServer().getLogger().info(getName() + "ï¿½ï¿½ ï¿½Â½ï¿½Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½." + TaskIds.get(sGetU(p)));
 		TaskIds.remove(sGetU(p));
 	}
-	
-	
-	
-	/*private void reloadCustomConfig()
+
+	public void runParticle(Player p)
 	{
-		if(CustomFile == null) CustomFile = new File(getDataFolder(), "customconfig.yml");
-		CustomConfig = YamlConfiguration.loadConfiguration(CustomFile);
-		
-		InputStream defConfigStream = this.getResource("config.yml");
-		if(defConfigStream != null)
-		{
-			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-			CustomConfig.setDefaults(defConfig);
-		}
+		TaskIds.put(sGetU(p),
+				(Integer) getServer().getScheduler().scheduleSyncRepeatingTask(this, new Particles(this, p, custom), 0, 5));
 	}
 	
-	public void saveCustomConfig()
+	public void reloadParticle()
 	{
-		if(CustomFile == null || CustomConfig == null) return;
-		try {
-			getCustomConfig().save(CustomFile);
-		} catch (IOException e) {
-			Bukkit.getConsoleSender().sendMessage("Can't save config");
-		}
+		for(Player p : getServer().getOnlinePlayers()) if(TaskIds.containsKey(sGetU(p))) stopParticle(p);
 	}
 	
-	public void saveDefaultConfig()
+	public void restartParticle()
 	{
-		if(CustomFile == null) CustomFile = new File(getDataFolder(),"customconfig.yml");
-		if(!CustomFile.exists()) this.saveResource("config.yml", false);
+		for(Player p : getServer().getOnlinePlayers()) if(getConfig().getBoolean("Players." + p.getUniqueId().toString() + ".Settings.OnOff")) runParticle(p);
 	}
-	
-	public FileConfiguration getCustomConfig()
-	{
-		if(CustomConfig == null) reloadCustomConfig();
-		return CustomConfig;
-	}*/
-	
-	public String sGetU(Player p) // À¯´ÏÅ© ¾ÆÀÌµğ ¹Ş¾Æ¿À±â
+
+	public String sGetU(Player p) // ï¿½ï¿½ï¿½ï¿½Å© ï¿½ï¿½ï¿½Ìµï¿½ ï¿½Ş¾Æ¿ï¿½ï¿½ï¿½
 	{
 		return p.getUniqueId().toString();
 	}
-	
-	public void CommandHelp(Player sender)
-	{
-		sender.sendMessage("\n" + ChatColor.AQUA + "K-Particle ÄÉÀÌ¿Â¶óÀÎ ÈÄ¿ø¼­ºñ½º ÇÃ·¯±×ÀÎ By Pandahyun\n" + ChatColor.RESET
-				+ "¸í·É¾î º¸±â - /kpt help"
-				+ "\nÀÚ½ÅÀÇ ÈÄ¿øGUI ¿­±â - /kpt view"
-				+ "\nÈÄ¿ø ÆÄÆ¼Å¬ ¸ØÃß±â - /kpt stop"
-				+ "\n´Ù¸¥ÀÌÀÇ ÈÄ¿øGUI º¸±â[OP] - /kpt view <ÇÃ·¹ÀÌ¾î¸í>"
-				+ "\nÈÄ¿ø È¿°ú ÁÖ±â[OP] - /kpt give <ÇÃ·¹ÀÌ¾î¸í> <Particle or Shape> <¾ò´Â È¿°ú>"
-				+ "\nÈÄ¿ø È¿°ú »°±â[OP] - /kpt steal <ÇÃ·¹ÀÌ¾î¸í> <Particle or Shape> <»¯´Â È¿°ú>"
-				+ "\nÈÄ¿ø Ã¥ ¸¸µé±â[OP] - /kpt getBook <È¿°ú ÀÌ¸§> <ÆÄÆ¼Å¬>"
-				);
+
+	public void CommandHelp(Player sender) {
+		if(sender.isOp())
+			sender.sendMessage("\n" + ChatColor.AQUA + "K-Particle ï¿½ï¿½ï¿½Ì¿Â¶ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ By Pandahyun\n" + ChatColor.RESET
+					+ "ï¿½ï¿½É¾ï¿½ ï¿½ï¿½ï¿½ï¿½ - /kpt help" + "\nï¿½Ú½ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½GUI ï¿½ï¿½ï¿½ï¿½ - /kpt view" + "\nï¿½Ä¿ï¿½ ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ß±ï¿½[OP] - /kpt stop <Player>"
+					+ "\nï¿½Ù¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½GUI ï¿½ï¿½ï¿½ï¿½[OP] - /kpt view <ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½>"
+					+ "\nï¿½Ä¿ï¿½ È¿ï¿½ï¿½ ï¿½Ö±ï¿½[OP] - /kpt give <ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½> <Particle or pt or Shape or sh or Custom or ct> <ï¿½ï¿½ï¿½ È¿ï¿½ï¿½>"
+					+ "\nï¿½Ä¿ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½[OP] - /kpt remove <ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½> <Particle or pt or Shape or sh or Custom or ct> <ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½>"
+					+ "\nï¿½Ä¿ï¿½ Ã¥ ï¿½ï¿½ï¿½ï¿½ï¿½[OP] - /kpt getBook <Particle or pt or Shape or sh or Custom or ct> <È¿ï¿½ï¿½>"
+					+ "\nï¿½Ä¿ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½[OP] - /kpt list <Particle or pt or Shape or sh or Custom or ct> <È¿ï¿½ï¿½>"
+					+ "\nï¿½ï¿½Æ¼Å¬ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½[OP] - /kpt restart ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Îµï¿½ï¿½ ï¿½Ûµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ûµï¿½ï¿½ï¿½ ï¿½È‰ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½");	
+		else
+			sender.sendMessage("\n" + ChatColor.AQUA + "K-Particle ï¿½ï¿½ï¿½Ì¿Â¶ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ By Pandahyun\n" + ChatColor.RESET
+					+ "ï¿½ï¿½É¾ï¿½ ï¿½ï¿½ï¿½ï¿½ - /kpt help" + "\nï¿½Ú½ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½GUI ï¿½ï¿½ï¿½ï¿½ - /kpt view");
 	}
+
 	
-	private Player sGetP(String s) // ÇÃ·¹ÀÌ¾î ¹Ş¾Æ¿À±â
+	
+	private Player sGetP(String s) // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½Ş¾Æ¿ï¿½ï¿½ï¿½
 	{
-		/*for (Player p : getServer().getOnlinePlayers())
-			{
-				if(p.getDisplayName().equals(s)) return p;
-			}*/
 		return getServer().getPlayer(s);
 	}
 }

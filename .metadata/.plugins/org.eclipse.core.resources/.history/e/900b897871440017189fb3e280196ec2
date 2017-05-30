@@ -1,0 +1,71 @@
+package com.Pandahyun.Main;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
+
+/*
+ * MagicBar Project
+ * By Gangguen
+ * 
+ * component
+ * - ���� ����
+ * - ����
+ * - ��ħ�� - 어부
+ * - �ؽð� - 농부
+ * - CD - 광부
+ * - ? - 요리사
+ * - ? - 사냥꾼
+ * - ? - 사육사
+ * 
+ * - 승리 조건
+ * 
+ * - �������� �й�. �й�� ������ ���� �� ������� ���ӵ�.
+ * - ���� ��ũ������ ��ȣ�� ����. (���� ��ȣ����)
+ * 
+ * - 자본가 승리
+ * - ������ �¸� ������ ���Ž� �¸�.
+ * 
+ * - 탐험가 승리
+ * - �ʿ��� �������� ��� ã���� �¸�
+ */
+
+public class Main extends JavaPlugin implements Listener {
+	
+	public void onEnable()
+	{
+		getServer().getPluginManager().registerEvents(this, this);
+		Bukkit.getLogger().info("매직바 플러그인 기동");
+	}
+	
+	public void onDisable()
+	{
+		Bukkit.getLogger().info("매직바 플러그인 종료");
+	}
+	
+	public boolean onCommand(CommandSender sender, Command label, String command, String[] args)
+	{
+		if(command.equalsIgnoreCase("mb") || command.equalsIgnoreCase("magicbar"))
+		{
+			
+			return true;
+		}
+		return false;
+	}
+	
+	public void CommandHelp(Player p)
+	{
+		p.sendMessage("----������ ����----");
+		p.sendMessage("/��");
+		p.sendMessage("/����");
+		p.sendMessage("/��");
+		p.sendMessage("/����");
+		p.sendMessage("/mb ���");
+		p.sendMessage("/mb ���");
+		p.sendMessage("/mb ���");
+		
+	}
+}

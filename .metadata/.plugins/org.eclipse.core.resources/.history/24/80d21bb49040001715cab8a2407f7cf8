@@ -1,0 +1,37 @@
+package com.Pandahyun.Main;
+
+import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Making {
+	
+	public JavaPlugin plugin;
+	public Player _p;
+	/*public MakeParticle(JavaPlugin plugin, Player p)
+	{
+		this.plugin = plugin;
+		this._p = p;
+		
+	}*/
+	
+	public Making(JavaPlugin main, Player player) {
+		this.plugin = main;
+		_p = player;
+		openWorld();
+		teleport()
+	}
+	
+	public void openWorld()
+	{
+		this.plugin.getServer().createWorld(new WorldCreator("hello"));
+	}
+	
+	public void teleport(double x, double y, double z)
+	{
+		_p.getLocation().setX(x);
+		_p.getLocation().setY(y);
+		_p.getLocation().setZ(z);
+	}
+	
+}

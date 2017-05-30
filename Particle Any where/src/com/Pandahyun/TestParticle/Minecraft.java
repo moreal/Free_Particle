@@ -1,0 +1,13 @@
+package com.Pandahyun.TestParticle;
+
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Minecraft {
+	JavaPlugin plugin;
+	
+	public Minecraft()
+	{
+		
+	}
+}

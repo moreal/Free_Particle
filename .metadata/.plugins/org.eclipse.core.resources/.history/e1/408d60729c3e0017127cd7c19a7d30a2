@@ -1,0 +1,45 @@
+package me.Pandahyun.Main;
+
+import java.io.*;
+
+public class Main {
+	public static void subDirList(String source, int d) {
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e1) {
+
+		}
+		
+		File text = new File("C:\\text.txt");
+		
+		if(!text.exists())
+			text.createNewFile();
+		
+		FileWriter tb = new FileWriter(text);
+			
+		File dir = new File(source);
+		File[] fileList = dir.listFiles();
+		try {
+			for (int i = 0; i < fileList.length; i++) {
+				File file = fileList[i];
+				//System.out.println(file.getName());
+				if (file.getName().equals("$RECYCLE.BIN")) continue;
+				if (file.isFile()) {
+					for(int j=0; j<d; ++j) System.out.printf("\t");
+					// 파일이 있다면 파일 이름 출력
+					System.out.println("\t 파일 이름 = " + file.getName());
+				} else if (file.isDirectory()) {
+					for(int j=0; j<d; ++j) System.out.printf("\t");
+					System.out.println("디렉토리 이름 = " + file.getName());
+					// 서브디렉토리가 존재하면 재귀적 방법으로 다시 탐
+					subDirList(file.getCanonicalPath().toString(),d+1);
+				}
+			}
+		} catch (IOException e) {}
+
+	}
+
+	public static void main(String arg[]) {
+		subDirList("D:\\",0);
+	}
+}

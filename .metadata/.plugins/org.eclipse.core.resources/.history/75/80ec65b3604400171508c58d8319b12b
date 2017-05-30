@@ -1,0 +1,8 @@
+package com.Pandahyun.Ground;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GroundManage {
+	static List<Ground> Fields = new ArrayList<Ground>();
+}
